@@ -33,5 +33,6 @@ func main() {
 
 	r := chi.NewRouter()
 	m.CreateTicket(p)
+	m.NextDrawDate()
 	http.ListenAndServe(":3000", r)
 }

@@ -31,3 +31,14 @@ func (m *LogMiddleware) CreateTicket(nums *types.UserNumbers) (ticket *types.Tic
 	ticket, err = m.next.CreateTicket(nums)
 	return
 }
+
+func (m *LogMiddleware) NextDrawDate() (nextDraw time.Time) {
+	defer func(start time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"took": time.Since(start),
+			"date": nextDraw,
+		}).Info("next draw date")
+	}(time.Now())
+	nextDraw = m.next.NextDrawDate()
+	return
+}

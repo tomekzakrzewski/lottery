@@ -19,10 +19,10 @@ type CreateTicketParams struct {
 	DrawDate time.Time `json:"draw_date"`
 }
 
-// DRAW DATE FROM ANOTHER SERVICE
 func NewTicketFromParams(params *CreateTicketParams) *Ticket {
 	return &Ticket{
-		Numbers: params.Numbers,
-		Hash:    uuid.New().String(),
+		Numbers:  params.Numbers,
+		Hash:     uuid.New().String(),
+		DrawDate: params.DrawDate,
 	}
 }

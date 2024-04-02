@@ -9,6 +9,7 @@ import (
 
 type NumberReceiver interface {
 	CreateTicket(nums *types.UserNumbers) (*types.Ticket, error)
+	NextDrawDate() time.Time
 }
 
 type ReceiverService struct {
@@ -23,13 +24,13 @@ func NewNumberReceiver(ticketStore *MongoTicketStore) NumberReceiver {
 
 func (n *ReceiverService) CreateTicket(nums *types.UserNumbers) (*types.Ticket, error) {
 	// validacja
+	// better error handling
 	if !nums.ValidateNumbers() {
 		return nil, fmt.Errorf("invalid numbers")
 	}
-	// DRAW DATE FROM ANOTHER SERVICE
 	params := &types.CreateTicketParams{
 		Numbers:  nums.Numbers,
-		DrawDate: time.Now().Add(24 * time.Hour), // FETCH FROM ANOTHER SERVICE
+		DrawDate: n.NextDrawDate(),
 	}
 
 	ticket := types.NewTicketFromParams(params)
@@ -39,4 +40,22 @@ func (n *ReceiverService) CreateTicket(nums *types.UserNumbers) (*types.Ticket, 
 		return nil, err
 	}
 	return res, nil
+}
+
+// every saturday at 12:00
+func (s *ReceiverService) NextDrawDate() time.Time {
+	currentTime := time.Now()
+
+	// If it's Saturday and before noon, return today's date at draw time
+	if currentTime.Weekday() == time.Saturday && currentTime.Hour() < 12 {
+		drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.Location())
+		return drawDate
+	}
+
+	// Otherwise, find the next Saturday and return its date at draw time
+	for currentTime.Weekday() != time.Saturday {
+		currentTime = currentTime.AddDate(0, 0, 1)
+	}
+	drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.Location())
+	return drawDate
 }
