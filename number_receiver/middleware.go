@@ -26,7 +26,7 @@ func (m *LogMiddleware) CreateTicket(nums *types.UserNumbers) (ticket *types.Tic
 			"ticket hash": ticket.Hash,
 			"numbers":     nums,
 			"draw date":   ticket.DrawDate,
-		}).Info("create ticket")
+		}).Info("CreateTicket")
 	}(time.Now())
 	ticket, err = m.next.CreateTicket(nums)
 	return
@@ -37,8 +37,21 @@ func (m *LogMiddleware) NextDrawDate() (nextDraw types.DrawDate) {
 		logrus.WithFields(logrus.Fields{
 			"took": time.Since(start),
 			"date": nextDraw,
-		}).Info("next draw date")
+		}).Info("NextDrawDate")
 	}(time.Now())
 	nextDraw = m.next.NextDrawDate()
+	return
+}
+
+func (m *LogMiddleware) GetTicketByHash(hash string) (ticket *types.Ticket, err error) {
+	defer func(start time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"took": time.Since(start),
+			"err":  err,
+			"hash": hash,
+			"date": ticket.DrawDate,
+		}).Info("GetTicketByHash")
+	}(time.Now())
+	ticket, err = m.next.GetTicketByHash(hash)
 	return
 }

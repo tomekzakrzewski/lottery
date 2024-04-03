@@ -10,6 +10,7 @@ import (
 type NumberReceiver interface {
 	CreateTicket(nums *types.UserNumbers) (*types.Ticket, error)
 	NextDrawDate() types.DrawDate
+	GetTicketByHash(hash string) (*types.Ticket, error)
 }
 
 type ReceiverService struct {
@@ -62,4 +63,12 @@ func (s *ReceiverService) NextDrawDate() types.DrawDate {
 	return types.DrawDate{
 		Date: drawDate,
 	}
+}
+
+func (n *ReceiverService) GetTicketByHash(hash string) (*types.Ticket, error) {
+	ticket, err := n.ticketStore.FindByHash(hash)
+	if err != nil {
+		return nil, err
+	}
+	return ticket, nil
 }

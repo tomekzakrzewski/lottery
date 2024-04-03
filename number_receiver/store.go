@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/tomekzakrzewski/lottery/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -31,4 +32,13 @@ func (s *MongoTicketStore) Insert(ticket *types.Ticket) (*types.Ticket, error) {
 	}
 	ticket.ID = res.InsertedID.(primitive.ObjectID)
 	return ticket, nil
+}
+
+func (s *MongoTicketStore) FindByHash(hash string) (*types.Ticket, error) {
+	var ticket types.Ticket
+	err := s.coll.FindOne(context.TODO(), bson.M{"hash": hash}).Decode(&ticket)
+	if err != nil {
+		return nil, err
+	}
+	return &ticket, nil
 }

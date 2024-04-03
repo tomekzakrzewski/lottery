@@ -23,7 +23,7 @@ func (m *LogMiddleware) generateWinningNumbers() (winningNumbers *types.WinningN
 			"took":            time.Since(start),
 			"winning numbers": winningNumbers,
 			"date":            winningNumbers.DrawDate,
-		}).Info("generate winning numbers")
+		}).Info("generateWinningNumbers")
 	}(time.Now())
 	winningNumbers = m.next.GenerateWinningNumbers()
 	return
