@@ -9,7 +9,7 @@ import (
 
 type NumberReceiver interface {
 	CreateTicket(nums *types.UserNumbers) (*types.Ticket, error)
-	NextDrawDate() time.Time
+	NextDrawDate() types.DrawDate
 }
 
 type ReceiverService struct {
@@ -30,7 +30,7 @@ func (n *ReceiverService) CreateTicket(nums *types.UserNumbers) (*types.Ticket, 
 	}
 	params := &types.CreateTicketParams{
 		Numbers:  nums.Numbers,
-		DrawDate: n.NextDrawDate(),
+		DrawDate: n.NextDrawDate().Date,
 	}
 
 	ticket := types.NewTicketFromParams(params)
@@ -43,13 +43,15 @@ func (n *ReceiverService) CreateTicket(nums *types.UserNumbers) (*types.Ticket, 
 }
 
 // every saturday at 12:00
-func (s *ReceiverService) NextDrawDate() time.Time {
+func (s *ReceiverService) NextDrawDate() types.DrawDate {
 	currentTime := time.Now()
 
 	// If it's Saturday and before noon, return today's date at draw time
 	if currentTime.Weekday() == time.Saturday && currentTime.Hour() < 12 {
 		drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.Location())
-		return drawDate
+		return types.DrawDate{
+			Date: drawDate,
+		}
 	}
 
 	// Otherwise, find the next Saturday and return its date at draw time
@@ -57,5 +59,7 @@ func (s *ReceiverService) NextDrawDate() time.Time {
 		currentTime = currentTime.AddDate(0, 0, 1)
 	}
 	drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.Location())
-	return drawDate
+	return types.DrawDate{
+		Date: drawDate,
+	}
 }

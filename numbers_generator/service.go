@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"math/rand"
+	"net/http"
 	"time"
 
 	"github.com/tomekzakrzewski/lottery/types"
@@ -32,6 +34,22 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	}
 	return &types.WinningNumbers{
 		Numbers:  numbers,
-		DrawDate: time.Now(), //fetch from number receiver
+		DrawDate: s.fetchNextDrawDate().Date,
 	}
+}
+
+func (s *Service) fetchNextDrawDate() *types.DrawDate {
+	apiUrl := "http://localhost:3000/drawDate"
+	response, err := http.Get(apiUrl)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+	var date types.DrawDate
+	err = json.NewDecoder(response.Body).Decode(&date)
+	if err != nil {
+		panic(err)
+	}
+
+	return &date
 }

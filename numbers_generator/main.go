@@ -6,5 +6,4 @@ func main() {
 	m := NewLogMiddleware(svc)
 
 	m.generateWinningNumbers()
-
 }
