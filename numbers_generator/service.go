@@ -34,11 +34,11 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	}
 	return &types.WinningNumbers{
 		Numbers:  numbers,
-		DrawDate: s.fetchNextDrawDate().Date,
+		DrawDate: fetchNextDrawDate().Date,
 	}
 }
 
-func (s *Service) fetchNextDrawDate() *types.DrawDate {
+func fetchNextDrawDate() *types.DrawDate {
 	apiUrl := "http://localhost:3000/drawDate"
 	response, err := http.Get(apiUrl)
 	if err != nil {

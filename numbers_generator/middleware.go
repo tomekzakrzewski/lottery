@@ -17,7 +17,7 @@ func NewLogMiddleware(next GeneratorServicer) *LogMiddleware {
 	}
 }
 
-func (m *LogMiddleware) generateWinningNumbers() (winningNumbers *types.WinningNumbers) {
+func (m *LogMiddleware) GenerateWinningNumbers() (winningNumbers *types.WinningNumbers) {
 	defer func(start time.Time) {
 		logrus.WithFields(logrus.Fields{
 			"took":            time.Since(start),

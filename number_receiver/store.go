@@ -42,3 +42,5 @@ func (s *MongoTicketStore) FindByHash(hash string) (*types.Ticket, error) {
 	}
 	return &ticket, nil
 }
+
+
