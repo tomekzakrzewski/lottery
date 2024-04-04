@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	generator "github.com/tomekzakrzewski/lottery/numbers_generator/client"
@@ -21,5 +22,10 @@ func main() {
 	generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
 
 	store := NewWinningTicketStore(client)
-	_ = NewResultCheckerService(*receiverHTTPClient, *generatorHTTPClient, *store)
+	svc := NewResultCheckerService(*receiverHTTPClient, *generatorHTTPClient, *store)
+	time.Sleep(5 * time.Second)
+	svc.GetWinningTickets()
+
+	time.Sleep(5 * time.Minute)
+
 }
