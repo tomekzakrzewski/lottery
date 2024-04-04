@@ -48,6 +48,16 @@ func (h *HttpTransport) handleFindByHash(w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusOK, ticket, nil)
 }
 
+func (h *HttpTransport) handleGetWinningTickets(w http.ResponseWriter, r *http.Request) {
+	var winningNumbers types.WinningNumbers
+	if err := json.NewDecoder(r.Body).Decode(&winningNumbers); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	winningTickets, _ := h.svc.GetWinningTickets(winningNumbers)
+	writeJSON(w, http.StatusOK, winningTickets, nil)
+}
+
 func writeJSON(w http.ResponseWriter, status int, v any, headers http.Header) error {
 	js, err := json.MarshalIndent(v, "", "\t")
 	if err != nil {

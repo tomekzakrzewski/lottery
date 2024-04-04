@@ -32,5 +32,6 @@ func main() {
 	r.Get("/drawDate", srv.handleGetNextDrawDate)
 	r.Get("/ticket/{hash}", srv.handleFindByHash)
 	r.Post("/ticket", srv.handlePostTicket)
+	r.Post("/winningTickets", srv.handleGetWinningTickets)
 	http.ListenAndServe(":3000", r)
 }

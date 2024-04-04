@@ -55,3 +55,16 @@ func (m *LogMiddleware) GetTicketByHash(hash string) (ticket *types.Ticket, err 
 	ticket, err = m.next.GetTicketByHash(hash)
 	return
 }
+
+func (m *LogMiddleware) GetWinningTickets(winningNumbers types.WinningNumbers) (tickets []*types.Ticket, err error) {
+	defer func(start time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"took":      time.Since(start),
+			"err":       err,
+			"numbers":   winningNumbers.Numbers,
+			"draw date": winningNumbers.DrawDate,
+		}).Info("GetWinningTickets")
+	}(time.Now())
+	tickets, err = m.next.GetWinningTickets(winningNumbers)
+	return
+}

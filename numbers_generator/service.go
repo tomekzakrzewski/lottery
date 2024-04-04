@@ -1,22 +1,27 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
+	"fmt"
 	"math/rand"
-	"net/http"
 	"time"
 
+	"github.com/tomekzakrzewski/lottery/number_receiver/client"
 	"github.com/tomekzakrzewski/lottery/types"
 )
 
-type Service struct{}
+type Service struct {
+	client client.HTTPClient
+}
 
 type GeneratorServicer interface {
 	GenerateWinningNumbers() *types.WinningNumbers
 }
 
-func NewGeneratorService() *Service {
-	return &Service{}
+func NewGeneratorService(client client.HTTPClient) *Service {
+	return &Service{
+		client: client,
+	}
 }
 
 func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
@@ -32,24 +37,13 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	for key := range uniqueNumbers {
 		numbers = append(numbers, key)
 	}
+	drawDate, err := s.client.GetNextDrawDate(context.Background())
+	if err != nil {
+		fmt.Println("failed to fetch draw date")
+	}
+
 	return &types.WinningNumbers{
 		Numbers:  numbers,
-		DrawDate: fetchNextDrawDate().Date,
+		DrawDate: drawDate.Date,
 	}
-}
-
-func fetchNextDrawDate() *types.DrawDate {
-	apiUrl := "http://localhost:3000/drawDate"
-	response, err := http.Get(apiUrl)
-	if err != nil {
-		panic(err)
-	}
-	defer response.Body.Close()
-	var date types.DrawDate
-	err = json.NewDecoder(response.Body).Decode(&date)
-	if err != nil {
-		panic(err)
-	}
-
-	return &date
 }

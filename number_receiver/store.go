@@ -43,4 +43,18 @@ func (s *MongoTicketStore) FindByHash(hash string) (*types.Ticket, error) {
 	return &ticket, nil
 }
 
-
+func (s *MongoTicketStore) FindByWinningNumersAndDrawDate(winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
+	filter := bson.M{
+		"drawDate": winningNumbers.DrawDate,
+		"numbers":  bson.M{"$all": winningNumbers.Numbers},
+	}
+	cursor, err := s.coll.Find(context.Background(), filter)
+	if err != nil {
+		return []*types.Ticket{}, nil
+	}
+	var winningTickets []*types.Ticket
+	if err := cursor.All(context.Background(), &winningTickets); err != nil {
+		return []*types.Ticket{}, nil
+	}
+	return winningTickets, nil
+}

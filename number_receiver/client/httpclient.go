@@ -72,3 +72,32 @@ func (h *HTTPClient) GetNextDrawDate(ctx context.Context) (*types.DrawDate, erro
 
 	return &date, nil
 }
+
+func (h *HTTPClient) GetWinningTickets(ctx context.Context, winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
+	endpoint := fmt.Sprintf("%s/winningTickets", h.Endpoint)
+
+	body, err := json.Marshal(winningNumbers)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	var winningTickets []*types.Ticket
+	err = json.NewDecoder(resp.Body).Decode(&winningTickets)
+	if err != nil {
+		return nil, err
+	}
+
+	return winningTickets, nil
+}
