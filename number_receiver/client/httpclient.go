@@ -75,7 +75,9 @@ func (h *HTTPClient) GetNextDrawDate(ctx context.Context) (*types.DrawDate, erro
 
 func (h *HTTPClient) GetWinningTickets(ctx context.Context, winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
 	endpoint := fmt.Sprintf("%s/winningTickets", h.Endpoint)
-
+	fmt.Println("IN THE CLIENT")
+	fmt.Println(winningNumbers.DrawDate)
+	fmt.Println(winningNumbers.Numbers)
 	body, err := json.Marshal(winningNumbers)
 	if err != nil {
 		return nil, err
@@ -98,6 +100,5 @@ func (h *HTTPClient) GetWinningTickets(ctx context.Context, winningNumbers types
 	if err != nil {
 		return nil, err
 	}
-
 	return winningTickets, nil
 }

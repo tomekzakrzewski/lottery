@@ -50,7 +50,7 @@ func (s *ReceiverService) NextDrawDate() types.DrawDate {
 
 	// If it's Saturday and before noon, return today's date at draw time
 	if currentTime.Weekday() == time.Saturday && currentTime.Hour() < 12 {
-		drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.Location())
+		drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.UTC().Location())
 		return types.DrawDate{
 			Date: drawDate,
 		}
@@ -60,7 +60,7 @@ func (s *ReceiverService) NextDrawDate() types.DrawDate {
 	for currentTime.Weekday() != time.Saturday {
 		currentTime = currentTime.AddDate(0, 0, 1)
 	}
-	drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.Location())
+	drawDate := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 12, 0, 0, 0, currentTime.UTC().Location())
 	return types.DrawDate{
 		Date: drawDate,
 	}
@@ -75,7 +75,12 @@ func (n *ReceiverService) GetTicketByHash(hash string) (*types.Ticket, error) {
 }
 
 func (n *ReceiverService) GetWinningTickets(winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
-	tickets, err := n.ticketStore.FindByWinningNumersAndDrawDate(types.WinningNumbers{})
+	fmt.Println("IN THE SERVICE")
+	fmt.Println(winningNumbers.Numbers)
+	fmt.Println(winningNumbers.DrawDate)
+	fmt.Println("---------------------")
+
+	tickets, err := n.ticketStore.FindByWinningNumersAndDrawDate(winningNumbers)
 	if err != nil {
 		return []*types.Ticket{}, nil
 	}

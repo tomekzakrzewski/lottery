@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -54,6 +55,10 @@ func (h *HttpTransport) handleGetWinningTickets(w http.ResponseWriter, r *http.R
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	fmt.Println("IN THE HANDLER")
+	fmt.Println(winningNumbers.Numbers)
+	fmt.Println(winningNumbers.DrawDate)
+
 	winningTickets, _ := h.svc.GetWinningTickets(winningNumbers)
 	writeJSON(w, http.StatusOK, winningTickets, nil)
 }

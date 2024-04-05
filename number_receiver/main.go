@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
+	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -21,6 +24,15 @@ func main() {
 	m := NewLogMiddleware(svc)
 
 	srv := NewHttpTransport(m)
+	// test
+	ticket := types.Ticket{
+		Numbers:  []int{1, 2, 3, 4, 5, 6},
+		DrawDate: svc.NextDrawDate().Date,
+		Hash:     uuid.New().String(),
+	}
+
+	ticketAdded, _ := store.Insert(&ticket)
+	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
 
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
