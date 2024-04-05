@@ -23,9 +23,9 @@ func main() {
 
 	store := NewWinningTicketStore(client)
 	svc := NewResultCheckerService(*receiverHTTPClient, *generatorHTTPClient, *store)
+	m := NewLogMiddleware(svc)
 	time.Sleep(5 * time.Second)
-	svc.GetWinningTickets()
+	m.GetWinningTickets()
 
 	time.Sleep(5 * time.Minute)
-
 }

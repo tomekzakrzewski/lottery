@@ -9,7 +9,7 @@ import (
 )
 
 type ResultChecker interface {
-	GetWinningTickets(hash string) (bool, error)
+	GetWinningTickets() error
 }
 
 type ResultCheckerService struct {
@@ -29,7 +29,7 @@ func NewResultCheckerService(receiver receiver.HTTPClient, generator generator.H
 func (r *ResultCheckerService) GetWinningTickets() error {
 	winningNumbers := r.generator.GenerateWinningNumbers()
 	winningNumbersMock := types.WinningNumbers{
-		Numbers:  []int{1, 2, 3, 4, 5, 6},
+		Numbers:  []int{2, 3, 4, 5, 6, 1},
 		DrawDate: winningNumbers.DrawDate,
 	}
 	//	winningTickets, _ := r.receiver.GetWinningTickets(context.Background(), *winningNumbers)

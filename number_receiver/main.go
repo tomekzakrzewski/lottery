@@ -25,14 +25,7 @@ func main() {
 
 	srv := NewHttpTransport(m)
 	// test
-	ticket := types.Ticket{
-		Numbers:  []int{1, 2, 3, 4, 5, 6},
-		DrawDate: svc.NextDrawDate().Date,
-		Hash:     uuid.New().String(),
-	}
-
-	ticketAdded, _ := store.Insert(&ticket)
-	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
+	//dodaj(svc, store)
 
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
@@ -46,4 +39,30 @@ func main() {
 	r.Post("/ticket", srv.handlePostTicket)
 	r.Post("/winningTickets", srv.handleGetWinningTickets)
 	http.ListenAndServe(":3000", r)
+}
+
+func dodaj(svc NumberReceiver, s *MongoTicketStore) {
+	ticket := types.Ticket{
+		Numbers:  []int{1, 2, 3, 4, 5, 6},
+		DrawDate: svc.NextDrawDate().Date,
+		Hash:     uuid.New().String(),
+	}
+	ticketAdded, _ := s.Insert(&ticket)
+	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
+
+	ticket = types.Ticket{
+		Numbers:  []int{2, 3, 4, 5, 6, 1},
+		DrawDate: svc.NextDrawDate().Date,
+		Hash:     uuid.New().String(),
+	}
+	ticketAdded, _ = s.Insert(&ticket)
+	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
+
+	ticket = types.Ticket{
+		Numbers:  []int{1, 2, 4, 5, 6, 3},
+		DrawDate: svc.NextDrawDate().Date,
+		Hash:     uuid.New().String(),
+	}
+	ticketAdded, _ = s.Insert(&ticket)
+	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
 }

@@ -75,11 +75,6 @@ func (n *ReceiverService) GetTicketByHash(hash string) (*types.Ticket, error) {
 }
 
 func (n *ReceiverService) GetWinningTickets(winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
-	fmt.Println("IN THE SERVICE")
-	fmt.Println(winningNumbers.Numbers)
-	fmt.Println(winningNumbers.DrawDate)
-	fmt.Println("---------------------")
-
 	tickets, err := n.ticketStore.FindByWinningNumersAndDrawDate(winningNumbers)
 	if err != nil {
 		return []*types.Ticket{}, nil
