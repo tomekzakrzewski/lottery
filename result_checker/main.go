@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"time"
+	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	generator "github.com/tomekzakrzewski/lottery/numbers_generator/client"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,12 +21,14 @@ func main() {
 
 	receiverHTTPClient := receiver.NewHTTPClient("http://localhost:3000")
 	generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
-
 	store := NewWinningTicketStore(client)
 	svc := NewResultCheckerService(*receiverHTTPClient, *generatorHTTPClient, *store)
 	m := NewLogMiddleware(svc)
-	time.Sleep(5 * time.Second)
+	srv := NewHttpTransport(m)
+	r := chi.NewRouter()
 	m.GetWinningTickets()
 
-	time.Sleep(5 * time.Minute)
+	r.Get("/win/{hash}", srv.handleCheckIsTicketWinning)
+
+	http.ListenAndServe(":5000", r)
 }

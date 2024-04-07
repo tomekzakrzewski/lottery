@@ -24,3 +24,13 @@ func (m *LogMiddleware) GetWinningTickets() error {
 	}(time.Now())
 	return m.next.GetWinningTickets()
 }
+
+func (m *LogMiddleware) IsTicketWinning(hash string) bool {
+	defer func(start time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"took": time.Since(start),
+			"hash": hash,
+		}).Info("IsTicketWinning")
+	}(time.Now())
+	return m.next.IsTicketWinning(hash)
+}

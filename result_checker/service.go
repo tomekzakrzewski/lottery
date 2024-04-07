@@ -10,6 +10,7 @@ import (
 
 type ResultChecker interface {
 	GetWinningTickets() error
+	IsTicketWinning(hash string) bool
 }
 
 type ResultCheckerService struct {
@@ -26,10 +27,11 @@ func NewResultCheckerService(receiver receiver.HTTPClient, generator generator.H
 	}
 }
 
+// RAN BY SCHEDULER, czy wystawiac na to endpoint wgl?
 func (r *ResultCheckerService) GetWinningTickets() error {
 	winningNumbers := r.generator.GenerateWinningNumbers()
 	winningNumbersMock := types.WinningNumbers{
-		Numbers:  []int{2, 3, 4, 5, 6, 1},
+		Numbers:  []int{1, 2, 3, 4, 5, 6},
 		DrawDate: winningNumbers.DrawDate,
 	}
 	//	winningTickets, _ := r.receiver.GetWinningTickets(context.Background(), *winningNumbers)
@@ -40,4 +42,8 @@ func (r *ResultCheckerService) GetWinningTickets() error {
 	}
 
 	return nil
+}
+
+func (r *ResultCheckerService) IsTicketWinning(hash string) bool {
+	return r.winningTicketStore.CheckIfTicketIsWinning(hash)
 }

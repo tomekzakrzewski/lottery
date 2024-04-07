@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/tomekzakrzewski/lottery/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -41,4 +42,15 @@ func (s *MongoWinningTicketStore) InsertWinningTickets(winningTickets []*types.T
 	}
 	logrus.Info("inserted " + fmt.Sprint(len(winningTickets)) + " tickets")
 	return nil
+}
+
+func (s *MongoWinningTicketStore) CheckIfTicketIsWinning(hash string) bool {
+	filter := bson.M{"hash": hash}
+
+	res, err := s.coll.CountDocuments(context.Background(), filter)
+	if err != nil {
+		return false
+	}
+
+	return res > 0
 }
