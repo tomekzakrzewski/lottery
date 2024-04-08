@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-co-op/gocron"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	generator "github.com/tomekzakrzewski/lottery/numbers_generator/client"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,7 +28,13 @@ func main() {
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
 	r := chi.NewRouter()
-	m.GetWinningTickets()
+
+	scheduler := gocron.NewScheduler(time.UTC)
+	_, err = scheduler.Every(1).Saturday().At("11:59").Do(m.GetWinningTickets())
+	if err != nil {
+		panic(err)
+	}
+	scheduler.StartAsync()
 
 	r.Get("/win/{hash}", srv.handleCheckIsTicketWinning)
 
