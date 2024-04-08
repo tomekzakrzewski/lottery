@@ -12,3 +12,8 @@ checker:
 	@echo "Starting result checker..."
 	@go build -o bin/checker ./result_checker
 	@./bin/checker
+
+annoucer:
+	@echo "Starting annoucer checker..."
+	@go build -o bin/annoucer ./result_annoucer
+	@./bin/annoucer
