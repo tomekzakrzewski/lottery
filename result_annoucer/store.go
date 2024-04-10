@@ -18,7 +18,7 @@ func NewRedisStore(c *redis.Client) *RedisStore {
 	}
 }
 
-func (s *RedisStore) Insert(result *types.ResultRespone) error {
+func (s *RedisStore) Insert(result *types.ResultResponse) error {
 	resultJson, _ := json.Marshal(result)
 	err := s.c.Set(result.Hash, resultJson, 24*time.Hour).Err()
 	if err != nil {
@@ -28,8 +28,8 @@ func (s *RedisStore) Insert(result *types.ResultRespone) error {
 	return nil
 }
 
-func (s *RedisStore) Find(hash string) (*types.ResultRespone, error) {
-	var result types.ResultRespone
+func (s *RedisStore) Find(hash string) (*types.ResultResponse, error) {
+	var result types.ResultResponse
 	resultJson, err := s.c.Get(hash).Result()
 	if err != nil {
 		return nil, err

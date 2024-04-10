@@ -24,7 +24,7 @@ func main() {
 
 	receiverHTTPClient := receiver.NewHTTPClient("http://localhost:3000")
 	generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
-	store := NewWinningTicketStore(client)
+	store := NewNumbersStore(client)
 	svc := NewResultCheckerService(*receiverHTTPClient, *generatorHTTPClient, *store)
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
@@ -33,7 +33,7 @@ func main() {
 	s := gocron.NewScheduler(time.UTC)
 
 	//_, err = s.Every(1).Saturday().At("11:55").Do(m.GetWinningTickets)
-	_, err = s.Every(1).Minutes().Do(m.GetWinningTickets)
+	_, err = s.Every(1).Minutes().Do(m.GetWinningNumbers)
 	if err != nil {
 		fmt.Println(err)
 	}

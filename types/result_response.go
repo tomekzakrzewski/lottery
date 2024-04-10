@@ -2,7 +2,7 @@ package types
 
 import "time"
 
-type ResultRespone struct {
+type ResultResponse struct {
 	Hash     string    `json:"hash"`
 	Numbers  []int     `json:"numbers"`
 	Win      bool      `json:"win"`

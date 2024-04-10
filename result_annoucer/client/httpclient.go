@@ -18,7 +18,7 @@ func NewHTTPClient(endpoint string) *HTTPClient {
 	}
 }
 
-func (h *HTTPClient) CheckReuslt(hash string) *types.ResultRespone {
+func (h *HTTPClient) CheckReuslt(hash string) *types.ResultResponse {
 	endpoint := fmt.Sprintf("%s/win/%s", h.Endpoint, hash)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -33,7 +33,7 @@ func (h *HTTPClient) CheckReuslt(hash string) *types.ResultRespone {
 
 	defer resp.Body.Close()
 
-	var result types.ResultRespone
+	var result types.ResultResponse
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil

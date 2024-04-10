@@ -1,34 +1,44 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"reflect"
 
-	"github.com/sirupsen/logrus"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	generator "github.com/tomekzakrzewski/lottery/numbers_generator/client"
 	"github.com/tomekzakrzewski/lottery/types"
 )
 
 type ResultChecker interface {
-	GetWinningTickets() error
-	IsTicketWinning(hash string) bool
+	GetWinningNumbers() error
+	CheckTicketWin(ticket *types.Ticket) (*types.ResultResponse, error)
 }
 
 type ResultCheckerService struct {
-	receiver           receiver.HTTPClient
-	generator          generator.HTTPClient
-	winningTicketStore *MongoWinningTicketStore
+	receiver  receiver.HTTPClient
+	generator generator.HTTPClient
+	store     *MongoNumbersStore
 }
 
-func NewResultCheckerService(receiver receiver.HTTPClient, generator generator.HTTPClient, store MongoWinningTicketStore) *ResultCheckerService {
+func NewResultCheckerService(receiver receiver.HTTPClient, generator generator.HTTPClient, store MongoNumbersStore) *ResultCheckerService {
 	return &ResultCheckerService{
-		receiver:           receiver,
-		generator:          generator,
-		winningTicketStore: &store,
+		receiver:  receiver,
+		generator: generator,
+		store:     &store,
 	}
 }
 
+// RAN BY SCHEDULER
+func (r *ResultCheckerService) GetWinningNumbers() error {
+	winningNumbers := r.generator.GenerateWinningNumbers()
+
+	_, err := r.store.InsertWinningNumbers(winningNumbers)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+/*
 // RAN BY SCHEDULER, czy wystawiac na to endpoint wgl?
 func (r *ResultCheckerService) GetWinningTickets() error {
 	winningNumbers := r.generator.GenerateWinningNumbers()
@@ -47,7 +57,19 @@ func (r *ResultCheckerService) GetWinningTickets() error {
 
 	return nil
 }
+*/
 
-func (r *ResultCheckerService) IsTicketWinning(hash string) bool {
-	return r.winningTicketStore.CheckIfTicketIsWinning(hash)
+func (r *ResultCheckerService) CheckTicketWin(ticket *types.Ticket) (*types.ResultResponse, error) {
+	winningNumbers, err := r.store.FindWinningNumbersByDate(ticket.DrawDate)
+	if err != nil {
+		return nil, err
+	}
+
+	win := reflect.DeepEqual(ticket.Numbers, winningNumbers.Numbers)
+	return &types.ResultResponse{
+		Hash:     ticket.Hash,
+		Numbers:  ticket.Numbers,
+		Win:      win,
+		DrawDate: ticket.DrawDate,
+	}, nil
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/tomekzakrzewski/lottery/types"
 )
 
 type HttpTransport struct {
@@ -19,8 +19,19 @@ func NewHttpTransport(svc ResultChecker) *HttpTransport {
 
 // can handle better, but for now it's ok. write better response. return numbers
 func (h *HttpTransport) handleCheckIsTicketWinning(w http.ResponseWriter, r *http.Request) {
-	hash := chi.URLParam(r, "hash")
-	isWinning := h.svc.IsTicketWinning(hash)
+	var body types.Ticket
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	isWinning, err := h.svc.CheckTicketWin(&body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	writeJSON(w, http.StatusOK, isWinning, nil)
 }
 

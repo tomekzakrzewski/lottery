@@ -1,10 +1,13 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/tomekzakrzewski/lottery/types"
 )
 
 type HTTPClient struct {
@@ -17,26 +20,31 @@ func NewHTTPClient(endpoint string) *HTTPClient {
 	}
 }
 
-func (h *HTTPClient) IsTicketWinning(ctx context.Context, hash string) *bool {
-	endpoint := fmt.Sprintf("%s/win/%s", h.Endpoint, hash)
+func (h *HTTPClient) IsTicketWinning(ctx context.Context, ticket *types.Ticket) (*types.ResultResponse, error) {
+	endpoint := fmt.Sprintf("%s/win", h.Endpoint)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	body, err := json.Marshal(ticket)
 	if err != nil {
-		return nil
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
-	var isWinning bool
-	err = json.NewDecoder(resp.Body).Decode(&isWinning)
+	var resultResponse types.ResultResponse
+	err = json.NewDecoder(resp.Body).Decode(&resultResponse)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return &isWinning
+	return &resultResponse, nil
 }

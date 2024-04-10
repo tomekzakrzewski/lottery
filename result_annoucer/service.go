@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	checker "github.com/tomekzakrzewski/lottery/result_checker/client"
@@ -10,7 +11,7 @@ import (
 )
 
 type ResultAnnoucer interface {
-	CheckResult(hash string) (*types.ResultRespone, error)
+	CheckResult(hash string) (*types.ResultResponse, error)
 }
 
 type ResultAnnoucerService struct {
@@ -27,7 +28,7 @@ func NewResultAnnoucerService(checker checker.HTTPClient, receiver receiver.HTTP
 	}
 }
 
-func (s *ResultAnnoucerService) CheckResult(hash string) (*types.ResultRespone, error) {
+func (s *ResultAnnoucerService) CheckResult(hash string) (*types.ResultResponse, error) {
 	// sprawdzic czy hash jest w redis
 	result, _ := s.redis.Find(hash)
 	if result != nil {
@@ -40,21 +41,24 @@ func (s *ResultAnnoucerService) CheckResult(hash string) (*types.ResultRespone, 
 	}
 
 	// sprawdzic czy ticket jest wygrany
-	ticketWin := s.checker.IsTicketWinning(context.Background(), hash)
-
-	// stworzenie result z ticketa i ticket win
-	resultTicket := types.ResultRespone{
-		Hash:     ticket.Hash,
-		Numbers:  ticket.Numbers,
-		Win:      *ticketWin,
-		DrawDate: ticket.DrawDate,
-	}
-
-	// zapisanie result do redisa
-	err = s.redis.Insert(&resultTicket)
+	resultTicket, err := s.checker.IsTicketWinning(context.Background(), ticket)
 	if err != nil {
 		return nil, err
 	}
 
-	return &resultTicket, nil
+	// zapisanie result do redisa
+	err = s.redis.Insert(resultTicket)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isAfterAnnoucement(resultTicket.DrawDate) {
+		return nil, fmt.Errorf("Result will be annouced after %s", resultTicket.DrawDate)
+	}
+	return resultTicket, nil
+}
+
+func isAfterAnnoucement(date time.Time) bool {
+	now := time.Now()
+	return now.After(date)
 }

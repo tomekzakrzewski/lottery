@@ -2,30 +2,51 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
-	winningTicketsColl = "winningTickets"
+	winningNumbersColl = "winningNumbers"
 )
 
-type MongoWinningTicketStore struct {
+type MongoNumbersStore struct {
 	client *mongo.Client
 	coll   *mongo.Collection
 }
 
-func NewWinningTicketStore(client *mongo.Client) *MongoWinningTicketStore {
-	return &MongoWinningTicketStore{
+func NewNumbersStore(client *mongo.Client) *MongoNumbersStore {
+	return &MongoNumbersStore{
 		client: client,
-		coll:   client.Database("lottery").Collection(winningTicketsColl),
+		coll:   client.Database("lottery").Collection(winningNumbersColl),
 	}
 }
 
+func (s *MongoNumbersStore) InsertWinningNumbers(numbers *types.WinningNumbers) (*types.WinningNumbers, error) {
+	res, err := s.coll.InsertOne(context.Background(), numbers)
+	if err != nil {
+		return nil, err
+	}
+	numbers.ID = res.InsertedID.(primitive.ObjectID)
+	return numbers, nil
+}
+
+func (s *MongoNumbersStore) FindWinningNumbersByDate(drawDate time.Time) (*types.WinningNumbers, error) {
+	var winningNumbers types.WinningNumbers
+	filter := bson.M{"drawDate": drawDate}
+	err := s.coll.FindOne(context.Background(), filter).Decode(&winningNumbers)
+	if err != nil {
+		return nil, err
+	}
+
+	return &winningNumbers, nil
+}
+
+/*
 func (s *MongoWinningTicketStore) InsertWinningTickets(winningTickets []*types.Ticket) error {
 	if len(winningTickets) == 0 {
 		logrus.Info("no winning tickets to insert")
@@ -54,3 +75,5 @@ func (s *MongoWinningTicketStore) CheckIfTicketIsWinning(hash string) bool {
 
 	return res > 0
 }
+
+*/
