@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/tomekzakrzewski/lottery/types"
 )
 
 type LogMiddleware struct {
@@ -16,12 +17,16 @@ func NewLogMiddleware(next ResultAnnoucer) *LogMiddleware {
 	}
 }
 
-func (m *LogMiddleware) CheckTicketWin(hash string) bool {
+func (m *LogMiddleware) CheckResult(hash string) (result *types.ResultRespone, err error) {
 	defer func(start time.Time) {
 		logrus.WithFields(logrus.Fields{
-			"took": time.Since(start),
-			"hash": hash,
-		}).Info("GetWinningTickets")
+			"took":    time.Since(start),
+			"error":   err,
+			"hash":    hash,
+			"numbers": result.Numbers,
+			"win":     result.Win,
+			"date":    result.DrawDate,
+		}).Info("CheckResult")
 	}(time.Now())
-	return m.next.CheckTicketWin(hash)
+	return m.next.CheckResult(hash)
 }

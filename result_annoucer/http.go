@@ -17,9 +17,12 @@ func NewHttpTransport(svc ResultAnnoucer) *HttpTransport {
 	}
 }
 
-func (h *HttpTransport) handleCheckIsTicketWinning(w http.ResponseWriter, r *http.Request) {
+func (h *HttpTransport) handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	hash := chi.URLParam(r, "hash")
-	isWinning := h.svc.CheckTicketWin(hash)
+	isWinning, err := h.svc.CheckResult(hash)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, nil, nil)
+	}
 	writeJSON(w, http.StatusOK, isWinning, nil)
 }
 

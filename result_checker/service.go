@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/sirupsen/logrus"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	generator "github.com/tomekzakrzewski/lottery/numbers_generator/client"
 	"github.com/tomekzakrzewski/lottery/types"
@@ -36,8 +38,10 @@ func (r *ResultCheckerService) GetWinningTickets() error {
 	}
 	//	winningTickets, _ := r.receiver.GetWinningTickets(context.Background(), *winningNumbers)
 	winningTickets, _ := r.receiver.GetWinningTickets(context.Background(), winningNumbersMock)
+	fmt.Println(len(winningTickets))
 	err := r.winningTicketStore.InsertWinningTickets(winningTickets)
 	if err != nil {
+		logrus.Info(err)
 		return err
 	}
 

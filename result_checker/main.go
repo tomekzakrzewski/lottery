@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -29,12 +30,15 @@ func main() {
 	srv := NewHttpTransport(m)
 	r := chi.NewRouter()
 
-	scheduler := gocron.NewScheduler(time.UTC)
-	_, err = scheduler.Every(1).Saturday().At("11:59").Do(m.GetWinningTickets())
+	s := gocron.NewScheduler(time.UTC)
+
+	//_, err = s.Every(1).Saturday().At("11:55").Do(m.GetWinningTickets)
+	_, err = s.Every(1).Minutes().Do(m.GetWinningTickets)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
-	scheduler.StartAsync()
+
+	s.StartAsync()
 
 	r.Get("/win/{hash}", srv.handleCheckIsTicketWinning)
 

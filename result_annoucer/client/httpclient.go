@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/tomekzakrzewski/lottery/types"
 )
 
 type HTTPClient struct {
@@ -16,7 +18,7 @@ func NewHTTPClient(endpoint string) *HTTPClient {
 	}
 }
 
-func (h *HTTPClient) CheckTicketWin(hash string) *bool {
+func (h *HTTPClient) CheckReuslt(hash string) *types.ResultRespone {
 	endpoint := fmt.Sprintf("%s/win/%s", h.Endpoint, hash)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -31,11 +33,11 @@ func (h *HTTPClient) CheckTicketWin(hash string) *bool {
 
 	defer resp.Body.Close()
 
-	var isWinning bool
-	err = json.NewDecoder(resp.Body).Decode(&isWinning)
+	var result types.ResultRespone
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil
 	}
 
-	return &isWinning
+	return &result
 }
