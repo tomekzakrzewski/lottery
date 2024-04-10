@@ -37,13 +37,20 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	for key := range uniqueNumbers {
 		numbers = append(numbers, key)
 	}
-	drawDate, err := s.client.GetNextDrawDate(context.Background())
+	_, err := s.client.GetNextDrawDate(context.Background())
 	if err != nil {
 		fmt.Println("failed to fetch draw date")
 	}
-
+	/*
+		return &types.WinningNumbers{
+			Numbers:  numbers,
+			DrawDate: drawDate.Date,
+		}
+	*/
 	return &types.WinningNumbers{
-		Numbers:  numbers,
-		DrawDate: drawDate.Date,
+		Numbers: []int{
+			1, 2, 3, 4, 5, 6,
+		},
+		DrawDate: time.Date(2024, 04, 06, 12, 0, 0, 0, time.UTC),
 	}
 }

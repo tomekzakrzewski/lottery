@@ -40,7 +40,7 @@ func main() {
 
 	s.StartAsync()
 
-	r.Get("/win/{hash}", srv.handleCheckIsTicketWinning)
+	r.Post("/win", srv.handleCheckIsTicketWinning)
 
 	http.ListenAndServe(":5000", r)
 }

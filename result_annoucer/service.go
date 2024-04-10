@@ -31,17 +31,20 @@ func NewResultAnnoucerService(checker checker.HTTPClient, receiver receiver.HTTP
 func (s *ResultAnnoucerService) CheckResult(hash string) (*types.ResultResponse, error) {
 	// sprawdzic czy hash jest w redis
 	result, _ := s.redis.Find(hash)
+	fmt.Println(result)
 	if result != nil {
 		return result, nil
 	}
 	// brak w redisie, pobranie z receivera
 	ticket, err := s.receiver.GetTicketByHash(context.Background(), hash)
+	fmt.Println(ticket)
 	if err != nil {
 		return nil, fmt.Errorf("ticket with hash %s not found", hash)
 	}
 
 	// sprawdzic czy ticket jest wygrany
 	resultTicket, err := s.checker.IsTicketWinning(context.Background(), ticket)
+	fmt.Println(resultTicket)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +56,7 @@ func (s *ResultAnnoucerService) CheckResult(hash string) (*types.ResultResponse,
 	}
 
 	if !isAfterAnnoucement(resultTicket.DrawDate) {
-		return nil, fmt.Errorf("Result will be annouced after %s", resultTicket.DrawDate)
+		return nil, fmt.Errorf("result will be annouced after %s", resultTicket.DrawDate)
 	}
 	return resultTicket, nil
 }

@@ -20,6 +20,17 @@ func NewLogMiddleware(next ResultAnnoucer) *LogMiddleware {
 func (m *LogMiddleware) CheckResult(hash string) (result *types.ResultResponse, err error) {
 	defer func(start time.Time) {
 		logrus.WithFields(logrus.Fields{
+			"took":  time.Since(start),
+			"error": err,
+		}).Info("CheckResult")
+	}(time.Now())
+	return m.next.CheckResult(hash)
+}
+
+/*
+func (m *LogMiddleware) CheckResult(hash string) (result *types.ResultResponse, err error) {
+	defer func(start time.Time) {
+		logrus.WithFields(logrus.Fields{
 			"took":    time.Since(start),
 			"error":   err,
 			"hash":    hash,
@@ -30,3 +41,4 @@ func (m *LogMiddleware) CheckResult(hash string) (result *types.ResultResponse, 
 	}(time.Now())
 	return m.next.CheckResult(hash)
 }
+*/

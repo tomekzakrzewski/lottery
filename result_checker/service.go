@@ -67,9 +67,10 @@ func (r *ResultCheckerService) CheckTicketWin(ticket *types.Ticket) (*types.Resu
 
 	win := reflect.DeepEqual(ticket.Numbers, winningNumbers.Numbers)
 	return &types.ResultResponse{
-		Hash:     ticket.Hash,
-		Numbers:  ticket.Numbers,
-		Win:      win,
-		DrawDate: ticket.DrawDate,
+		Hash:           ticket.Hash,
+		Numbers:        ticket.Numbers,
+		Win:            win,
+		WinningNumbers: winningNumbers.Numbers,
+		DrawDate:       ticket.DrawDate,
 	}, nil
 }

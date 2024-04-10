@@ -19,9 +19,10 @@ func NewHttpTransport(svc ResultAnnoucer) *HttpTransport {
 
 func (h *HttpTransport) handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	hash := chi.URLParam(r, "hash")
-	isWinning, err := h.svc.CheckResult(hash)
-	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, nil, nil)
+	isWinning, _ := h.svc.CheckResult(hash)
+	if isWinning == nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
 	}
 	writeJSON(w, http.StatusOK, isWinning, nil)
 }
