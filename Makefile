@@ -17,3 +17,6 @@ annoucer:
 	@echo "Starting annoucer checker..."
 	@go build -o bin/annoucer ./result_annoucer
 	@./bin/annoucer
+
+proto:
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative types/ptypes.proto

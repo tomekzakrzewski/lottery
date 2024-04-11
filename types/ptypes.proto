@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "github.com/tomekzakrzewski/lottery/types";
+
+import "google/protobuf/timestamp.proto";
+
+message WinningNums {
+    repeated int32 Numbers = 1;
+    google.protobuf.Timestamp DrawDate = 2;
+}
+
+service Generator {
+    rpc GenerateWinningNumbers(Empty) returns (WinningNums);
+}
+
+message Empty{}
