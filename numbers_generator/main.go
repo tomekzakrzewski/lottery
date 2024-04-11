@@ -15,12 +15,17 @@ import (
 func main() {
 
 	var (
-		receiverEndpoint = "http://localhost:3000"
-		generatorGRCP    = "localhost:3005"
+		//receiverEndpoint = "http://localhost:3000"
+		generatorGRCP = "localhost:3005"
+		receiverGRPC  = "localhost:3006"
 	)
 
-	httpClient := client.NewHTTPClient(receiverEndpoint)
-	svc := NewGeneratorService(*httpClient)
+	//httpClient := client.NewHTTPClient(receiverEndpoint)
+	grpcClient, err := client.NewGRPCClient(receiverGRPC)
+	if err != nil {
+		panic(err)
+	}
+	svc := NewGeneratorService(*grpcClient)
 	m := NewLogMiddleware(svc)
 
 	go func() {

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -10,6 +12,7 @@ import (
 	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -18,6 +21,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	var (
+		receiverGRPC = "localhost:3006"
+	)
 
 	store := NewTicketStore(client)
 	svc := NewNumberReceiver(store)
@@ -31,6 +38,10 @@ func main() {
 		if err := client.Disconnect(context.TODO()); err != nil {
 			panic(err)
 		}
+	}()
+
+	go func() {
+		log.Fatal(makeGRPCTransport(receiverGRPC, m))
 	}()
 
 	r := chi.NewRouter()
@@ -65,4 +76,19 @@ func dodaj(svc NumberReceiver, s *MongoTicketStore) {
 	}
 	ticketAdded, _ = s.Insert(&ticket)
 	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
+}
+
+func makeGRPCTransport(listenAddr string, svc NumberReceiver) error {
+	fmt.Println("GRPC running on ", listenAddr)
+	ln, err := net.Listen("tcp", listenAddr)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		fmt.Println("stopping GRPC transport")
+		ln.Close()
+	}()
+	grpcServer := grpc.NewServer([]grpc.ServerOption{}...)
+	types.RegisterReceiverServer(grpcServer, NewGRPCReceiverServer(svc))
+	return grpcServer.Serve(ln)
 }
