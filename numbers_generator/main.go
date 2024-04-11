@@ -23,11 +23,10 @@ func main() {
 	svc := NewGeneratorService(*httpClient)
 	m := NewLogMiddleware(svc)
 
-	srv := NewHttpTransport(m)
 	go func() {
 		log.Fatal(makeGRPCTransport(generatorGRCP, m))
-
 	}()
+	srv := NewHttpTransport(m)
 
 	r := chi.NewRouter()
 	r.Get("/winningNumbers", srv.handleGetWinningNumbers)

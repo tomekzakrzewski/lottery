@@ -23,15 +23,11 @@ func main() {
 	}
 
 	receiverHTTPClient := receiver.NewHTTPClient("http://localhost:3000")
-	generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
+	//generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
 	generatorGRCPClient, err := generator.NewGRPCClient("localhost:3005")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(generatorGRCPClient.GenerateWinningNumbers())
 
 	store := NewNumbersStore(client)
-	svc := NewResultCheckerService(*receiverHTTPClient, *generatorHTTPClient, *store)
+	svc := NewResultCheckerService(*receiverHTTPClient, generatorGRCPClient, *store)
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
 	r := chi.NewRouter()
