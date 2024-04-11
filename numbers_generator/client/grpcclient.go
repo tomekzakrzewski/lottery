@@ -26,10 +26,20 @@ func NewGRPCClient(endpoint string) (*GRPCClient, error) {
 	}, nil
 }
 
-func (c *GRPCClient) GenerateWinningNumbers() *types.WinningNums {
+func (c *GRPCClient) GenerateWinningNumbers() *types.WinningNumbers {
 	winningNumbers, err := c.client.GenerateWinningNumbers(context.Background(), &types.Empty{})
 	if err != nil {
 		return nil
 	}
-	return winningNumbers
+
+	numbers := make([]int, len(winningNumbers.Numbers))
+	for i, v := range winningNumbers.Numbers {
+		numbers[i] = int(v)
+	}
+	drawDate := winningNumbers.DrawDate.AsTime()
+
+	return &types.WinningNumbers{
+		Numbers:  numbers,
+		DrawDate: drawDate,
+	}
 }
