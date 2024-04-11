@@ -4,6 +4,8 @@ option go_package = "github.com/tomekzakrzewski/lottery/types";
 
 import "google/protobuf/timestamp.proto";
 
+message Empty{}
+
 message WinningNums {
     repeated int32 Numbers = 1;
     google.protobuf.Timestamp DrawDate = 2;
@@ -13,4 +15,22 @@ service Generator {
     rpc GenerateWinningNumbers(Empty) returns (WinningNums);
 }
 
-message Empty{}
+message TicketTransport {
+    string id = 1;
+    repeated int32 numbers = 2;
+    google.protobuf.Timestamp drawDate = 3;
+    string hash = 4;
+}
+
+message NextDate {
+    google.protobuf.Timestamp date = 1;
+}
+
+message TicketHashRequest {
+    string hash = 1;
+}
+
+service Receiver {
+    rpc GetTicketByHash(TicketHashRequest) returns (TicketTransport);
+    rpc NextDrawDate(Empty) returns (NextDate);
+}

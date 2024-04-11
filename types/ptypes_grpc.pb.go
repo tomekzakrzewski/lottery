@@ -103,3 +103,125 @@ var Generator_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "types/ptypes.proto",
 }
+
+// ReceiverClient is the client API for Receiver service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ReceiverClient interface {
+	GetTicketByHash(ctx context.Context, in *TicketHashRequest, opts ...grpc.CallOption) (*TicketTransport, error)
+	NextDrawDate(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NextDate, error)
+}
+
+type receiverClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewReceiverClient(cc grpc.ClientConnInterface) ReceiverClient {
+	return &receiverClient{cc}
+}
+
+func (c *receiverClient) GetTicketByHash(ctx context.Context, in *TicketHashRequest, opts ...grpc.CallOption) (*TicketTransport, error) {
+	out := new(TicketTransport)
+	err := c.cc.Invoke(ctx, "/Receiver/GetTicketByHash", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *receiverClient) NextDrawDate(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NextDate, error) {
+	out := new(NextDate)
+	err := c.cc.Invoke(ctx, "/Receiver/NextDrawDate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ReceiverServer is the server API for Receiver service.
+// All implementations must embed UnimplementedReceiverServer
+// for forward compatibility
+type ReceiverServer interface {
+	GetTicketByHash(context.Context, *TicketHashRequest) (*TicketTransport, error)
+	NextDrawDate(context.Context, *Empty) (*NextDate, error)
+	mustEmbedUnimplementedReceiverServer()
+}
+
+// UnimplementedReceiverServer must be embedded to have forward compatible implementations.
+type UnimplementedReceiverServer struct {
+}
+
+func (UnimplementedReceiverServer) GetTicketByHash(context.Context, *TicketHashRequest) (*TicketTransport, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTicketByHash not implemented")
+}
+func (UnimplementedReceiverServer) NextDrawDate(context.Context, *Empty) (*NextDate, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NextDrawDate not implemented")
+}
+func (UnimplementedReceiverServer) mustEmbedUnimplementedReceiverServer() {}
+
+// UnsafeReceiverServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ReceiverServer will
+// result in compilation errors.
+type UnsafeReceiverServer interface {
+	mustEmbedUnimplementedReceiverServer()
+}
+
+func RegisterReceiverServer(s grpc.ServiceRegistrar, srv ReceiverServer) {
+	s.RegisterService(&Receiver_ServiceDesc, srv)
+}
+
+func _Receiver_GetTicketByHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketHashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReceiverServer).GetTicketByHash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Receiver/GetTicketByHash",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReceiverServer).GetTicketByHash(ctx, req.(*TicketHashRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Receiver_NextDrawDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReceiverServer).NextDrawDate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Receiver/NextDrawDate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReceiverServer).NextDrawDate(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Receiver_ServiceDesc is the grpc.ServiceDesc for Receiver service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Receiver_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Receiver",
+	HandlerType: (*ReceiverServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetTicketByHash",
+			Handler:    _Receiver_GetTicketByHash_Handler,
+		},
+		{
+			MethodName: "NextDrawDate",
+			Handler:    _Receiver_NextDrawDate_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "types/ptypes.proto",
+}
