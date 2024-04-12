@@ -15,12 +15,12 @@ type ResultAnnoucer interface {
 }
 
 type ResultAnnoucerService struct {
-	checker  checker.HTTPClient
-	receiver receiver.HTTPClient
+	checker  checker.GRPCClient
+	receiver receiver.GRPCClient
 	redis    *RedisStore
 }
 
-func NewResultAnnoucerService(checker checker.HTTPClient, receiver receiver.HTTPClient, redis *RedisStore) *ResultAnnoucerService {
+func NewResultAnnoucerService(checker checker.GRPCClient, receiver receiver.GRPCClient, redis *RedisStore) *ResultAnnoucerService {
 	return &ResultAnnoucerService{
 		checker:  checker,
 		receiver: receiver,

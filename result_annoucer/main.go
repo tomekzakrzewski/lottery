@@ -10,15 +10,17 @@ import (
 )
 
 func main() {
-	checkerClient := checker.NewHTTPClient("http://localhost:5000")
-	receiverClient := receiver.NewHTTPClient("http://localhost:3000")
+	//checkerClient := checker.NewHTTPClient("http://localhost:5000")
+	checkerGRPCClient, _ := checker.NewGRPCClient("localhost:3009")
+	//receiverClient := receiver.NewHTTPClient("http://localhost:3000")
+	receiverGRPCClient, _ := receiver.NewGRPCClient("localhost:3006")
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})
 	redis := NewRedisStore(redisClient)
-	svc := NewResultAnnoucerService(*checkerClient, *receiverClient, redis)
+	svc := NewResultAnnoucerService(*checkerGRPCClient, *receiverGRPCClient, redis)
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
 

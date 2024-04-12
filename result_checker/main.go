@@ -31,7 +31,7 @@ func main() {
 	)
 	receiverHTTPClient := receiver.NewHTTPClient("http://localhost:3000")
 	//generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
-	generatorGRCPClient, err := generator.NewGRPCClient("localhost:3005")
+	generatorGRCPClient, _ := generator.NewGRPCClient("localhost:3005")
 
 	store := NewNumbersStore(client)
 	svc := NewResultCheckerService(*receiverHTTPClient, generatorGRCPClient, *store)

@@ -27,10 +27,10 @@ func NewGRPCClient(endpoint string) (*GRPCClient, error) {
 	}, nil
 }
 
-func (c *GRPCClient) GetTicketByHash(hash string) *types.Ticket {
-	ticket, err := c.client.GetTicketByHash(context.Background(), &types.TicketHashRequest{Hash: hash})
+func (c *GRPCClient) GetTicketByHash(ctx context.Context, hash string) (*types.Ticket, error) {
+	ticket, err := c.client.GetTicketByHash(ctx, &types.TicketHashRequest{Hash: hash})
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	numbers := make([]int, len(ticket.Numbers))
@@ -40,7 +40,7 @@ func (c *GRPCClient) GetTicketByHash(hash string) *types.Ticket {
 
 	id, err := primitive.ObjectIDFromHex(ticket.Id)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	return &types.Ticket{
@@ -48,7 +48,7 @@ func (c *GRPCClient) GetTicketByHash(hash string) *types.Ticket {
 		Numbers:  numbers,
 		DrawDate: ticket.DrawDate.AsTime(),
 		Hash:     ticket.Hash,
-	}
+	}, nil
 }
 
 func (c *GRPCClient) GetNextDrawDate() *types.DrawDate {
