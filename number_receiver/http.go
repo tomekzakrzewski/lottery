@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -47,20 +46,6 @@ func (h *HttpTransport) handleFindByHash(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	writeJSON(w, http.StatusOK, ticket, nil)
-}
-
-func (h *HttpTransport) handleGetWinningTickets(w http.ResponseWriter, r *http.Request) {
-	var winningNumbers types.WinningNumbers
-	if err := json.NewDecoder(r.Body).Decode(&winningNumbers); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	fmt.Println("IN THE HANDLER")
-	fmt.Println(winningNumbers.Numbers)
-	fmt.Println(winningNumbers.DrawDate)
-
-	winningTickets, _ := h.svc.GetWinningTickets(winningNumbers)
-	writeJSON(w, http.StatusOK, winningTickets, nil)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any, headers http.Header) error {

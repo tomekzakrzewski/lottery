@@ -11,7 +11,6 @@ type NumberReceiver interface {
 	CreateTicket(nums *types.UserNumbers) (*types.Ticket, error)
 	NextDrawDate() types.DrawDate
 	GetTicketByHash(hash string) (*types.Ticket, error)
-	GetWinningTickets(winningNumbers types.WinningNumbers) ([]*types.Ticket, error)
 }
 
 type ReceiverService struct {
@@ -72,12 +71,4 @@ func (n *ReceiverService) GetTicketByHash(hash string) (*types.Ticket, error) {
 		return nil, err
 	}
 	return ticket, nil
-}
-
-func (n *ReceiverService) GetWinningTickets(winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
-	tickets, err := n.ticketStore.FindByWinningNumersAndDrawDate(winningNumbers)
-	if err != nil {
-		return []*types.Ticket{}, nil
-	}
-	return tickets, nil
 }

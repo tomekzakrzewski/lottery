@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -43,27 +41,4 @@ func (s *MongoTicketStore) FindByHash(hash string) (*types.Ticket, error) {
 		return nil, err
 	}
 	return &ticket, nil
-}
-
-// fix getting tickets by draw date and winning numbers
-func (s *MongoTicketStore) FindByWinningNumersAndDrawDate(winningNumbers types.WinningNumbers) ([]*types.Ticket, error) {
-	fmt.Println(winningNumbers.DrawDate)
-	fmt.Println(winningNumbers.Numbers)
-	filter := bson.M{
-		"numbers":  winningNumbers.Numbers,
-		"drawDate": winningNumbers.DrawDate,
-	}
-	res, err := s.coll.Find(context.Background(), filter)
-	if err != nil {
-		logrus.Info(err)
-	}
-
-	var tickets []*types.Ticket
-	err = res.All(context.Background(), &tickets)
-	fmt.Println(&tickets)
-	if err != nil {
-		logrus.Info(err)
-		return nil, err
-	}
-	return tickets, nil
 }
