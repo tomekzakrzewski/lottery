@@ -225,3 +225,89 @@ var Receiver_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "types/ptypes.proto",
 }
+
+// CheckerClient is the client API for Checker service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CheckerClient interface {
+	CheckTicket(ctx context.Context, in *TicketTransport, opts ...grpc.CallOption) (*ResultResp, error)
+}
+
+type checkerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCheckerClient(cc grpc.ClientConnInterface) CheckerClient {
+	return &checkerClient{cc}
+}
+
+func (c *checkerClient) CheckTicket(ctx context.Context, in *TicketTransport, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, "/Checker/CheckTicket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CheckerServer is the server API for Checker service.
+// All implementations must embed UnimplementedCheckerServer
+// for forward compatibility
+type CheckerServer interface {
+	CheckTicket(context.Context, *TicketTransport) (*ResultResp, error)
+	mustEmbedUnimplementedCheckerServer()
+}
+
+// UnimplementedCheckerServer must be embedded to have forward compatible implementations.
+type UnimplementedCheckerServer struct {
+}
+
+func (UnimplementedCheckerServer) CheckTicket(context.Context, *TicketTransport) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckTicket not implemented")
+}
+func (UnimplementedCheckerServer) mustEmbedUnimplementedCheckerServer() {}
+
+// UnsafeCheckerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CheckerServer will
+// result in compilation errors.
+type UnsafeCheckerServer interface {
+	mustEmbedUnimplementedCheckerServer()
+}
+
+func RegisterCheckerServer(s grpc.ServiceRegistrar, srv CheckerServer) {
+	s.RegisterService(&Checker_ServiceDesc, srv)
+}
+
+func _Checker_CheckTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketTransport)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CheckerServer).CheckTicket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Checker/CheckTicket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CheckerServer).CheckTicket(ctx, req.(*TicketTransport))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Checker_ServiceDesc is the grpc.ServiceDesc for Checker service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Checker_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Checker",
+	HandlerType: (*CheckerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CheckTicket",
+			Handler:    _Checker_CheckTicket_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "types/ptypes.proto",
+}

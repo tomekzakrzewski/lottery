@@ -34,3 +34,15 @@ service Receiver {
     rpc GetTicketByHash(TicketHashRequest) returns (TicketTransport);
     rpc NextDrawDate(Empty) returns (NextDate);
 }
+
+message ResultResp {
+    string hash = 1;
+    repeated int32 numbers =2;
+    repeated int32 winningNumbers = 3;
+    bool win = 4;
+    google.protobuf.Timestamp drawDate = 5;
+}
+
+service Checker {
+    rpc CheckTicket(TicketTransport) returns (ResultResp);
+}
