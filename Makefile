@@ -18,5 +18,12 @@ annoucer:
 	@go build -o bin/annoucer ./result_annoucer
 	@./bin/annoucer
 
+gate:
+	@echo "Starting gateway..."
+	@go build -o bin/gateway ./gateway
+	@./bin/gateway
+
+
 proto:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative types/ptypes.proto
+

@@ -18,7 +18,7 @@ func NewHTTPClient(endpoint string) *HTTPClient {
 	}
 }
 
-func (h *HTTPClient) CheckReuslt(hash string) *types.ResultResponse {
+func (h *HTTPClient) CheckResult(hash string) *types.ResultResponse {
 	endpoint := fmt.Sprintf("%s/win/%s", h.Endpoint, hash)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
