@@ -13,12 +13,23 @@ import (
 
 func main() {
 	listenAddr := ":8000"
-	receiverAddr := "http://localhost:3000"
-	annoucerAddr := "http://localhost:6000"
+	//receiverAddr := "http://localhost:3000"
+	receiverGRPC := "localhost:3006"
+	//annoucerAddr := "http://localhost:6000"
+	annoucerGRPC := "localhost:6006"
 
-	receiverHttpClient := receiver.NewHTTPClient(receiverAddr)
-	annoucerHttpClient := annoucer.NewHTTPClient(annoucerAddr)
-	handler := NewHandler(*receiverHttpClient, *annoucerHttpClient)
+	//receiverHttpClient := receiver.NewHTTPClient(receiverAddr)
+	receiverGRPCClient, err := receiver.NewGRPCClient(receiverGRPC)
+	if err != nil {
+		panic(err)
+	}
+	//	annoucerHttpClient := annoucer.NewHTTPClient(annoucerAddr)
+	annoucerGRPCClient, err := annoucer.NewGRPCClient(annoucerGRPC)
+	if err != nil {
+		panic(err)
+	}
+
+	handler := NewHandler(*receiverGRPCClient, annoucerGRPCClient)
 	r := chi.NewRouter()
 
 	r.Post("/inputTicket", handler.handlePostTicket)
@@ -27,11 +38,11 @@ func main() {
 }
 
 type Handler struct {
-	receiverClient receiver.HTTPClient
-	annoucerClient annoucer.HTTPClient
+	receiverClient receiver.GRPCClient
+	annoucerClient annoucer.Client
 }
 
-func NewHandler(receiverClient receiver.HTTPClient, annoucerClient annoucer.HTTPClient) *Handler {
+func NewHandler(receiverClient receiver.GRPCClient, annoucerClient annoucer.Client) *Handler {
 	return &Handler{
 		receiverClient: receiverClient,
 		annoucerClient: annoucerClient,
@@ -56,9 +67,9 @@ func (h *Handler) handlePostTicket(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	hash := chi.URLParam(r, "hash")
-	isWinning := h.annoucerClient.CheckResult(hash)
-	if isWinning == nil {
-		http.Error(w, "not found", http.StatusNotFound)
+	isWinning, err := h.annoucerClient.CheckResult(hash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	writeJSON(w, http.StatusOK, isWinning, nil)

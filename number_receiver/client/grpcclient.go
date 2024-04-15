@@ -60,5 +60,4 @@ func (c *GRPCClient) GetNextDrawDate() *types.DrawDate {
 	return &types.DrawDate{
 		Date: drawDate.Date.AsTime(),
 	}
-
 }

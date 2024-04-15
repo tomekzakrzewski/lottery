@@ -46,3 +46,7 @@ message ResultResp {
 service Checker {
     rpc CheckTicket(TicketTransport) returns (ResultResp);
 }
+
+service Annoucer {
+    rpc CheckResult(TicketHashRequest) returns (ResultResp);
+}

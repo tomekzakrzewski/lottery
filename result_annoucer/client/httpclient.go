@@ -18,17 +18,17 @@ func NewHTTPClient(endpoint string) *HTTPClient {
 	}
 }
 
-func (h *HTTPClient) CheckResult(hash string) *types.ResultResponse {
+func (h *HTTPClient) CheckResult(hash string) (*types.ResultResponse, error) {
 	endpoint := fmt.Sprintf("%s/win/%s", h.Endpoint, hash)
 
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -36,8 +36,8 @@ func (h *HTTPClient) CheckResult(hash string) *types.ResultResponse {
 	var result types.ResultResponse
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return &result
+	return &result, err
 }

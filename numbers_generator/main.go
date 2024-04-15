@@ -7,12 +7,16 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 	"github.com/tomekzakrzewski/lottery/number_receiver/client"
 	"github.com/tomekzakrzewski/lottery/types"
 	"google.golang.org/grpc"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
 
 	var (
 		//receiverEndpoint = "http://localhost:3000"

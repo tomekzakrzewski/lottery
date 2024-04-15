@@ -311,3 +311,89 @@ var Checker_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "types/ptypes.proto",
 }
+
+// AnnoucerClient is the client API for Annoucer service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AnnoucerClient interface {
+	CheckResult(ctx context.Context, in *TicketHashRequest, opts ...grpc.CallOption) (*ResultResp, error)
+}
+
+type annoucerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAnnoucerClient(cc grpc.ClientConnInterface) AnnoucerClient {
+	return &annoucerClient{cc}
+}
+
+func (c *annoucerClient) CheckResult(ctx context.Context, in *TicketHashRequest, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, "/Annoucer/CheckResult", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AnnoucerServer is the server API for Annoucer service.
+// All implementations must embed UnimplementedAnnoucerServer
+// for forward compatibility
+type AnnoucerServer interface {
+	CheckResult(context.Context, *TicketHashRequest) (*ResultResp, error)
+	mustEmbedUnimplementedAnnoucerServer()
+}
+
+// UnimplementedAnnoucerServer must be embedded to have forward compatible implementations.
+type UnimplementedAnnoucerServer struct {
+}
+
+func (UnimplementedAnnoucerServer) CheckResult(context.Context, *TicketHashRequest) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckResult not implemented")
+}
+func (UnimplementedAnnoucerServer) mustEmbedUnimplementedAnnoucerServer() {}
+
+// UnsafeAnnoucerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AnnoucerServer will
+// result in compilation errors.
+type UnsafeAnnoucerServer interface {
+	mustEmbedUnimplementedAnnoucerServer()
+}
+
+func RegisterAnnoucerServer(s grpc.ServiceRegistrar, srv AnnoucerServer) {
+	s.RegisterService(&Annoucer_ServiceDesc, srv)
+}
+
+func _Annoucer_CheckResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketHashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnnoucerServer).CheckResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Annoucer/CheckResult",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnnoucerServer).CheckResult(ctx, req.(*TicketHashRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Annoucer_ServiceDesc is the grpc.ServiceDesc for Annoucer service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Annoucer_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Annoucer",
+	HandlerType: (*AnnoucerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CheckResult",
+			Handler:    _Annoucer_CheckResult_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "types/ptypes.proto",
+}

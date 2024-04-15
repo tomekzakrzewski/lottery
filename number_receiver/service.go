@@ -24,8 +24,6 @@ func NewNumberReceiver(ticketStore *MongoTicketStore) NumberReceiver {
 }
 
 func (n *ReceiverService) CreateTicket(nums *types.UserNumbers) (*types.Ticket, error) {
-	// validacja
-	// better error handling
 	if !nums.ValidateNumbers() {
 		return nil, fmt.Errorf("invalid numbers")
 	}
