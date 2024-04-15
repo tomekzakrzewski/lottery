@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -19,12 +20,11 @@ func main() {
 	}
 
 	var (
-		//receiverEndpoint = "http://localhost:3000"
-		generatorGRCP = "localhost:3005"
-		receiverGRPC  = "localhost:3006"
+		generatorHTTP = os.Getenv("GENERATOR_HTTP")
+		generatorGRPC = os.Getenv("GENERATOR_GRPC")
+		receiverGRPC  = os.Getenv("RECEIVER_GRPC")
+		r             = chi.NewRouter()
 	)
-
-	//httpClient := client.NewHTTPClient(receiverEndpoint)
 	grpcClient, err := client.NewGRPCClient(receiverGRPC)
 	if err != nil {
 		panic(err)
@@ -33,13 +33,12 @@ func main() {
 	m := NewLogMiddleware(svc)
 
 	go func() {
-		log.Fatal(makeGRPCTransport(generatorGRCP, m))
+		log.Fatal(makeGRPCTransport(generatorGRPC, m))
 	}()
 	srv := NewHttpTransport(m)
 
-	r := chi.NewRouter()
 	r.Get("/winningNumbers", srv.handleGetWinningNumbers)
-	http.ListenAndServe(":3001", r)
+	http.ListenAndServe(generatorHTTP, r)
 }
 
 func makeGRPCTransport(listenAddr string, svc GeneratorServicer) error {

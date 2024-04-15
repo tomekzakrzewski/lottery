@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-redis/redis"
@@ -15,17 +16,19 @@ import (
 )
 
 func main() {
-	annoucerGRPC := "localhost:6006"
-	//checkerClient := checker.NewHTTPClient("http://localhost:5000")
-	checkerGRPCClient, _ := checker.NewGRPCClient("localhost:3009")
-	//receiverClient := receiver.NewHTTPClient("http://localhost:3000")
-	receiverGRPCClient, _ := receiver.NewGRPCClient("localhost:3006")
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
-	})
-	redis := NewRedisStore(redisClient)
+
+	var (
+		redisUri     = os.Getenv("REDIS_URI")
+		annoucerGRPC = os.Getenv("ANNOUNCER_GRPC")
+		annoucerHTTP = os.Getenv("ANNOUNCER_HTTP")
+		checkerGRPC  = os.Getenv("CHECKER_GRPC")
+		receiverGRPC = os.Getenv("RECEIVER_GRPC")
+		redisClient  = makeRedis(redisUri)
+		redis        = NewRedisStore(redisClient)
+		r            = chi.NewRouter()
+	)
+	checkerGRPCClient, _ := checker.NewGRPCClient(checkerGRPC)
+	receiverGRPCClient, _ := receiver.NewGRPCClient(receiverGRPC)
 	svc := NewResultAnnoucerService(checkerGRPCClient, receiverGRPCClient, redis)
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
@@ -33,10 +36,9 @@ func main() {
 	go func() {
 		log.Fatal(makeGRPCTransport(annoucerGRPC, m))
 	}()
-	r := chi.NewRouter()
 	r.Get("/win/{hash}", srv.handleCheckResult)
 
-	http.ListenAndServe(":6000", r)
+	http.ListenAndServe(annoucerHTTP, r)
 
 }
 
@@ -53,4 +55,12 @@ func makeGRPCTransport(listenAddr string, svc ResultAnnoucer) error {
 	grpcServer := grpc.NewServer([]grpc.ServerOption{}...)
 	types.RegisterAnnoucerServer(grpcServer, NewAnnoucerGRPCServer(svc))
 	return grpcServer.Serve(ln)
+}
+
+func makeRedis(uri string) *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:     uri,
+		Password: "",
+		DB:       0,
+	})
 }

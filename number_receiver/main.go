@@ -6,9 +6,10 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,26 +17,23 @@ import (
 )
 
 func main() {
-	uri := "mongodb://localhost:27017"
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
 	}
 
+	mongoClient := makeClient(os.Getenv("MONGO_URI"))
+
 	var (
-		receiverGRPC = "localhost:3006"
+		receiverGRPC = os.Getenv("RECEIVER_GRPC")
+		receiverHTTP = os.Getenv("RECEIVER_HTTP")
+		store        = NewTicketStore(mongoClient)
+		svc          = NewNumberReceiver(store)
+		m            = NewLogMiddleware(svc)
 	)
 
-	store := NewTicketStore(client)
-	svc := NewNumberReceiver(store)
-	m := NewLogMiddleware(svc)
-
 	srv := NewHttpTransport(m)
-	// test
-	//dodaj(svc, store)
-
 	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
+		if err := mongoClient.Disconnect(context.TODO()); err != nil {
 			panic(err)
 		}
 	}()
@@ -48,33 +46,15 @@ func main() {
 	r.Get("/drawDate", srv.handleGetNextDrawDate)
 	r.Get("/ticket/{hash}", srv.handleFindByHash)
 	r.Post("/ticket", srv.handlePostTicket)
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(receiverHTTP, r)
 }
 
-func dodaj(svc NumberReceiver, s *MongoTicketStore) {
-	ticket := types.Ticket{
-		Numbers:  []int{1, 2, 3, 4, 5, 6},
-		DrawDate: svc.NextDrawDate().Date,
-		Hash:     uuid.New().String(),
+func makeClient(uri string) *mongo.Client {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Fatal(err)
 	}
-	ticketAdded, _ := s.Insert(&ticket)
-	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
-
-	ticket = types.Ticket{
-		Numbers:  []int{2, 3, 4, 5, 6, 1},
-		DrawDate: svc.NextDrawDate().Date,
-		Hash:     uuid.New().String(),
-	}
-	ticketAdded, _ = s.Insert(&ticket)
-	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
-
-	ticket = types.Ticket{
-		Numbers:  []int{1, 2, 4, 5, 6, 3},
-		DrawDate: svc.NextDrawDate().Date,
-		Hash:     uuid.New().String(),
-	}
-	ticketAdded, _ = s.Insert(&ticket)
-	fmt.Println("Ticket added: ", ticketAdded.Hash, ticketAdded.Numbers)
+	return client
 }
 
 func makeGRPCTransport(listenAddr string, svc NumberReceiver) error {

@@ -6,10 +6,12 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-co-op/gocron"
+	"github.com/joho/godotenv"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	generator "github.com/tomekzakrzewski/lottery/numbers_generator/client"
 	"github.com/tomekzakrzewski/lottery/types"
@@ -20,40 +22,38 @@ import (
 
 func main() {
 
-	uri := "mongodb://localhost:27017"
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
 	}
 
-	var (
-		checkerGRPC = "localhost:3009"
-	)
-	receiverHTTPClient := receiver.NewHTTPClient("http://localhost:3000")
-	//generatorHTTPClient := generator.NewHTTPClient("http://localhost:3001")
+	mongoClient := makeClient(os.Getenv("MONGO_URI"))
+	receiverGRPCClient, _ := receiver.NewGRPCClient(os.Getenv("RECEIVER_GRPC"))
 	generatorGRCPClient, _ := generator.NewGRPCClient("localhost:3005")
-
-	store := NewNumbersStore(client)
-	svc := NewResultCheckerService(*receiverHTTPClient, generatorGRCPClient, *store)
-	m := NewLogMiddleware(svc)
-	srv := NewHttpTransport(m)
+	var (
+		checkerGRPC = os.Getenv("CHECKER_GRPC")
+		checkerHTTP = os.Getenv("CHECKER_HTTP")
+		store       = NewNumbersStore(mongoClient)
+		r           = chi.NewRouter()
+		svc         = NewResultCheckerService(receiverGRPCClient, generatorGRCPClient, *store)
+		m           = NewLogMiddleware(svc)
+		srv         = NewHttpTransport(m)
+	)
 
 	go func() {
 		log.Fatal(makeGRPCTransport(checkerGRPC, m))
 	}()
 
 	s := gocron.NewScheduler(time.UTC)
-	//_, err = s.Every(1).Saturday().At("11:55").Do(m.GetWinningTickets)
-	_, err = s.Every(1).Minutes().Do(m.GetWinningNumbers)
+	_, err := s.Every(1).Saturday().At("11:55").Do(m.GetWinningNumbers)
+	//_, err = s.Every(1).Minutes().Do(m.GetWinningNumbers)
 	if err != nil {
 		fmt.Println(err)
 	}
 	s.StartAsync()
 
-	r := chi.NewRouter()
 	r.Post("/win", srv.handleCheckIsTicketWinning)
 
-	http.ListenAndServe(":5000", r)
+	http.ListenAndServe(checkerHTTP, r)
 }
 
 func makeGRPCTransport(listenAddr string, svc ResultChecker) error {
@@ -69,4 +69,12 @@ func makeGRPCTransport(listenAddr string, svc ResultChecker) error {
 	grpcServer := grpc.NewServer([]grpc.ServerOption{}...)
 	types.RegisterCheckerServer(grpcServer, NewGRPCCheckerServer(svc))
 	return grpcServer.Serve(ln)
+}
+
+func makeClient(uri string) *mongo.Client {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return client
 }

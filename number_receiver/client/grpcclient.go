@@ -51,7 +51,7 @@ func (c *GRPCClient) GetTicketByHash(ctx context.Context, hash string) (*types.T
 	}, nil
 }
 
-func (c *GRPCClient) GetNextDrawDate(ctx context.Context) (*types.DrawDate, error) {
+func (c *GRPCClient) GetNextDrawDate(ctx context.Context) *types.DrawDate {
 	drawDate, err := c.client.NextDrawDate(context.Background(), &types.Empty{})
 	if err != nil {
 		return nil
@@ -59,7 +59,7 @@ func (c *GRPCClient) GetNextDrawDate(ctx context.Context) (*types.DrawDate, erro
 
 	return &types.DrawDate{
 		Date: drawDate.Date.AsTime(),
-	}, nil
+	}
 }
 
 func (c *GRPCClient) CreateTicket(ctx context.Context, nums *types.UserNumbers) (*types.Ticket, error) {

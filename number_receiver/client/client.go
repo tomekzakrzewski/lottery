@@ -9,5 +9,5 @@ import (
 type Client interface {
 	GetTicketByHash(ctx context.Context, hash string) (*types.Ticket, error)
 	GetNextDrawDate(ctx context.Context) *types.DrawDate
-	CreateTicket(nctx context.Context, ums *types.UserNumbers) (*types.Ticket, error)
+	CreateTicket(ctx context.Context, nums *types.UserNumbers) (*types.Ticket, error)
 }

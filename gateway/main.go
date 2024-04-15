@@ -3,38 +3,43 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	annoucer "github.com/tomekzakrzewski/lottery/result_annoucer/client"
 	"github.com/tomekzakrzewski/lottery/types"
 )
 
 func main() {
-	listenAddr := ":8000"
-	//receiverAddr := "http://localhost:3000"
-	receiverGRPC := "localhost:3006"
-	//annoucerAddr := "http://localhost:6000"
-	annoucerGRPC := "localhost:6006"
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
 
-	//receiverHttpClient := receiver.NewHTTPClient(receiverAddr)
+	var (
+		gatewayHTTP  = os.Getenv("GATEWAY_HTTP")
+		receiverGRPC = os.Getenv("RECEIVER_GRPC")
+		annoucerGRPC = os.Getenv("ANNOUCER_GRPC")
+		r            = chi.NewRouter()
+	)
+
 	receiverGRPCClient, err := receiver.NewGRPCClient(receiverGRPC)
 	if err != nil {
 		panic(err)
 	}
-	//	annoucerHttpClient := annoucer.NewHTTPClient(annoucerAddr)
 	annoucerGRPCClient, err := annoucer.NewGRPCClient(annoucerGRPC)
 	if err != nil {
 		panic(err)
 	}
 
 	handler := NewHandler(receiverGRPCClient, annoucerGRPCClient)
-	r := chi.NewRouter()
 
 	r.Post("/inputTicket", handler.handlePostTicket)
 	r.Get("/result/{hash}", handler.handleCheckResult)
-	http.ListenAndServe(listenAddr, r)
+	http.ListenAndServe(gatewayHTTP, r)
 }
 
 type Handler struct {
