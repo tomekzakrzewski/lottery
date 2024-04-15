@@ -30,9 +30,14 @@ message TicketHashRequest {
     string hash = 1;
 }
 
+message UserNumbersTransport {
+    repeated int32 numbers = 1;
+}
+
 service Receiver {
     rpc GetTicketByHash(TicketHashRequest) returns (TicketTransport);
     rpc NextDrawDate(Empty) returns (NextDate);
+    rpc CreateTicket(UserNumbersTransport) returns (TicketTransport);
 }
 
 message ResultResp {

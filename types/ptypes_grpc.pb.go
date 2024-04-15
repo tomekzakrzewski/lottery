@@ -110,6 +110,7 @@ var Generator_ServiceDesc = grpc.ServiceDesc{
 type ReceiverClient interface {
 	GetTicketByHash(ctx context.Context, in *TicketHashRequest, opts ...grpc.CallOption) (*TicketTransport, error)
 	NextDrawDate(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NextDate, error)
+	CreateTicket(ctx context.Context, in *UserNumbersTransport, opts ...grpc.CallOption) (*TicketTransport, error)
 }
 
 type receiverClient struct {
@@ -138,12 +139,22 @@ func (c *receiverClient) NextDrawDate(ctx context.Context, in *Empty, opts ...gr
 	return out, nil
 }
 
+func (c *receiverClient) CreateTicket(ctx context.Context, in *UserNumbersTransport, opts ...grpc.CallOption) (*TicketTransport, error) {
+	out := new(TicketTransport)
+	err := c.cc.Invoke(ctx, "/Receiver/CreateTicket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReceiverServer is the server API for Receiver service.
 // All implementations must embed UnimplementedReceiverServer
 // for forward compatibility
 type ReceiverServer interface {
 	GetTicketByHash(context.Context, *TicketHashRequest) (*TicketTransport, error)
 	NextDrawDate(context.Context, *Empty) (*NextDate, error)
+	CreateTicket(context.Context, *UserNumbersTransport) (*TicketTransport, error)
 	mustEmbedUnimplementedReceiverServer()
 }
 
@@ -156,6 +167,9 @@ func (UnimplementedReceiverServer) GetTicketByHash(context.Context, *TicketHashR
 }
 func (UnimplementedReceiverServer) NextDrawDate(context.Context, *Empty) (*NextDate, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NextDrawDate not implemented")
+}
+func (UnimplementedReceiverServer) CreateTicket(context.Context, *UserNumbersTransport) (*TicketTransport, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTicket not implemented")
 }
 func (UnimplementedReceiverServer) mustEmbedUnimplementedReceiverServer() {}
 
@@ -206,6 +220,24 @@ func _Receiver_NextDrawDate_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Receiver_CreateTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserNumbersTransport)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReceiverServer).CreateTicket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Receiver/CreateTicket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReceiverServer).CreateTicket(ctx, req.(*UserNumbersTransport))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Receiver_ServiceDesc is the grpc.ServiceDesc for Receiver service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -220,6 +252,10 @@ var Receiver_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NextDrawDate",
 			Handler:    _Receiver_NextDrawDate_Handler,
+		},
+		{
+			MethodName: "CreateTicket",
+			Handler:    _Receiver_CreateTicket_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -44,3 +44,32 @@ func (s *GRPCReceiverServer) NextDrawDate(ctx context.Context, req *types.Empty)
 		Date: timestamppb.New(drawDate.Date),
 	}, nil
 }
+
+func (s *GRPCReceiverServer) CreateTicket(ctx context.Context, req *types.UserNumbersTransport) (*types.TicketTransport, error) {
+	numbers := make([]int, len(req.Numbers))
+	for i, v := range req.Numbers {
+		numbers[i] = int(v)
+	}
+
+	userNumbers := &types.UserNumbers{
+		Numbers: numbers,
+	}
+
+	ticketCreated, err := s.svc.CreateTicket(userNumbers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	numbersResponse := make([]int32, len(req.Numbers))
+	for i, v := range req.Numbers {
+		numbersResponse[i] = int32(v)
+	}
+
+	return &types.TicketTransport{
+		Id:       ticketCreated.ID.Hex(),
+		Numbers:  numbersResponse,
+		DrawDate: timestamppb.New(ticketCreated.DrawDate),
+		Hash:     ticketCreated.Hash,
+	}, nil
+}

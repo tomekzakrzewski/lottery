@@ -61,3 +61,24 @@ func (c *GRPCClient) GetNextDrawDate() *types.DrawDate {
 		Date: drawDate.Date.AsTime(),
 	}
 }
+
+func (c *GRPCClient) CreateTicket(ctx context.Context, nums *types.UserNumbers) (*types.Ticket, error) {
+	numbers := make([]int32, len(nums.Numbers))
+	for i, v := range nums.Numbers {
+		numbers[i] = int32(v)
+	}
+	ticket, err := c.client.CreateTicket(ctx, &types.UserNumbersTransport{Numbers: numbers})
+	if err != nil {
+		return nil, err
+	}
+	id, err := primitive.ObjectIDFromHex(ticket.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &types.Ticket{
+		ID:       id,
+		Numbers:  nums.Numbers,
+		DrawDate: ticket.DrawDate.AsTime(),
+		Hash:     ticket.Hash,
+	}, nil
+}
