@@ -26,7 +26,7 @@ func main() {
 		DB:       0,
 	})
 	redis := NewRedisStore(redisClient)
-	svc := NewResultAnnoucerService(*checkerGRPCClient, *receiverGRPCClient, redis)
+	svc := NewResultAnnoucerService(checkerGRPCClient, receiverGRPCClient, redis)
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
 

@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	svc := NewGeneratorService(*grpcClient)
+	svc := NewGeneratorService(grpcClient)
 	m := NewLogMiddleware(svc)
 
 	go func() {

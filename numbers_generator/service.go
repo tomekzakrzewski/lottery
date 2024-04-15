@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"math/rand"
 	"time"
 
@@ -9,14 +10,14 @@ import (
 )
 
 type Service struct {
-	client client.GRPCClient
+	client client.Client
 }
 
 type GeneratorServicer interface {
 	GenerateWinningNumbers() *types.WinningNumbers
 }
 
-func NewGeneratorService(client client.GRPCClient) *Service {
+func NewGeneratorService(client client.Client) *Service {
 	return &Service{
 		client: client,
 	}
@@ -35,7 +36,7 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	for key := range uniqueNumbers {
 		numbers = append(numbers, key)
 	}
-	drawDate := s.client.GetNextDrawDate()
+	drawDate := s.client.GetNextDrawDate(context.Background())
 
 	return &types.WinningNumbers{
 		Numbers:  numbers,

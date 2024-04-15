@@ -29,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	handler := NewHandler(*receiverGRPCClient, annoucerGRPCClient)
+	handler := NewHandler(receiverGRPCClient, annoucerGRPCClient)
 	r := chi.NewRouter()
 
 	r.Post("/inputTicket", handler.handlePostTicket)
@@ -38,11 +38,11 @@ func main() {
 }
 
 type Handler struct {
-	receiverClient receiver.GRPCClient
+	receiverClient receiver.Client
 	annoucerClient annoucer.Client
 }
 
-func NewHandler(receiverClient receiver.GRPCClient, annoucerClient annoucer.Client) *Handler {
+func NewHandler(receiverClient receiver.Client, annoucerClient annoucer.Client) *Handler {
 	return &Handler{
 		receiverClient: receiverClient,
 		annoucerClient: annoucerClient,

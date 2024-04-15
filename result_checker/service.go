@@ -14,12 +14,12 @@ type ResultChecker interface {
 }
 
 type ResultCheckerService struct {
-	receiver  receiver.HTTPClient
+	receiver  receiver.Client
 	generator generator.Client
 	store     *MongoNumbersStore
 }
 
-func NewResultCheckerService(receiver receiver.HTTPClient, generator generator.Client, store MongoNumbersStore) *ResultCheckerService {
+func NewResultCheckerService(receiver receiver.Client, generator generator.Client, store MongoNumbersStore) *ResultCheckerService {
 	return &ResultCheckerService{
 		receiver:  receiver,
 		generator: generator,
