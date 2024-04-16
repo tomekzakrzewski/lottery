@@ -13,6 +13,11 @@ const (
 	ticketColl = "tickets"
 )
 
+type TicketStore interface {
+	Insert(ticket *types.Ticket) (*types.Ticket, error)
+	FindByHash(hash string) (*types.Ticket, error)
+}
+
 type MongoTicketStore struct {
 	client *mongo.Client
 	coll   *mongo.Collection

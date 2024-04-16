@@ -1,5 +1,5 @@
 # Użyj oficjalnego obrazu Golang jako bazowego obrazu
-FROM golang:latest
+FROM golang:1.21.4
 
 # Ustaw katalog roboczy w kontenerze
 WORKDIR /app
@@ -30,3 +30,19 @@ EXPOSE 8080
 
 # Uruchom aplikację result_checker
 CMD ["/app/result_checker"]
+
+
+FROM golang:1.21.4
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /tw-employee-data-service ./cmd/api
+
+EXPOSE 8080 
+
+CMD ["/app/result_checker]

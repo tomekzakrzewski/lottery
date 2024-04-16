@@ -10,7 +10,6 @@ type UserNumbers struct {
 	Numbers []int `json:"numbers"`
 }
 
-// implement better validation
 func (input *UserNumbers) ValidateNumbers() bool {
 	if len(input.Numbers) != numLen {
 		return false
@@ -27,5 +26,5 @@ func (input *UserNumbers) unique() bool {
 	for _, num := range input.Numbers {
 		unique[num] = true
 	}
-	return len(input.Numbers) == len(input.Numbers)
+	return len(unique) == len(input.Numbers)
 }

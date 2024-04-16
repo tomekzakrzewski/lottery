@@ -14,10 +14,10 @@ type NumberReceiver interface {
 }
 
 type ReceiverService struct {
-	ticketStore *MongoTicketStore
+	ticketStore TicketStore
 }
 
-func NewNumberReceiver(ticketStore *MongoTicketStore) NumberReceiver {
+func NewNumberReceiver(ticketStore TicketStore) NumberReceiver {
 	return &ReceiverService{
 		ticketStore: ticketStore,
 	}

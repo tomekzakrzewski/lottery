@@ -8,6 +8,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
+	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
 	go.mongodb.org/mongo-driver v1.14.0
 	google.golang.org/grpc v1.63.2
@@ -16,7 +17,6 @@ require (
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
