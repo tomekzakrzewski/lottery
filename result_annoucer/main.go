@@ -27,19 +27,22 @@ func main() {
 		redis        = NewRedisStore(redisClient)
 		r            = chi.NewRouter()
 	)
-	checkerGRPCClient, _ := checker.NewGRPCClient(checkerGRPC)
-	receiverGRPCClient, _ := receiver.NewGRPCClient(receiverGRPC)
+	checkerGRPCClient, err := checker.NewGRPCClient(checkerGRPC)
+	if err != nil {
+		fmt.Println(err)
+	}
+	receiverGRPCClient, err := receiver.NewGRPCClient(receiverGRPC)
+	if err != nil {
+	}
 	svc := NewResultAnnoucerService(checkerGRPCClient, receiverGRPCClient, redis)
 	m := NewLogMiddleware(svc)
-	srv := NewHttpTransport(m)
 
 	go func() {
 		log.Fatal(makeGRPCTransport(annoucerGRPC, m))
 	}()
+	srv := NewHttpTransport(m)
 	r.Get("/win/{hash}", srv.handleCheckResult)
-
 	http.ListenAndServe(annoucerHTTP, r)
-
 }
 
 func makeGRPCTransport(listenAddr string, svc ResultAnnoucer) error {

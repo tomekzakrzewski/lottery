@@ -38,27 +38,6 @@ func (r *ResultCheckerService) GetWinningNumbers() error {
 	return nil
 }
 
-/*
-// RAN BY SCHEDULER, czy wystawiac na to endpoint wgl?
-func (r *ResultCheckerService) GetWinningTickets() error {
-	winningNumbers := r.generator.GenerateWinningNumbers()
-	winningNumbersMock := types.WinningNumbers{
-		Numbers:  []int{1, 2, 3, 4, 5, 6},
-		DrawDate: winningNumbers.DrawDate,
-	}
-	//	winningTickets, _ := r.receiver.GetWinningTickets(context.Background(), *winningNumbers)
-	winningTickets, _ := r.receiver.GetWinningTickets(context.Background(), winningNumbersMock)
-	fmt.Println(len(winningTickets))
-	err := r.winningTicketStore.InsertWinningTickets(winningTickets)
-	if err != nil {
-		logrus.Info(err)
-		return err
-	}
-
-	return nil
-}
-*/
-
 func (r *ResultCheckerService) CheckTicketWin(ticket *types.Ticket) (*types.ResultResponse, error) {
 	winningNumbers, err := r.store.FindWinningNumbersByDate(ticket.DrawDate)
 	if err != nil {

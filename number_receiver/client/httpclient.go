@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/tomekzakrzewski/lottery/types"
 )
@@ -49,7 +50,7 @@ func (h *HTTPClient) CreateTicket(ctx context.Context, nums *types.UserNumbers) 
 	return &ticket, nil
 }
 
-func (h *HTTPClient) GetNextDrawDate(ctx context.Context) *types.DrawDate {
+func (h *HTTPClient) GetNextDrawDate(ctx context.Context, currentTime time.Time) *types.DrawDate {
 	endpoint := fmt.Sprintf("%s/drawDate", h.Endpoint)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)

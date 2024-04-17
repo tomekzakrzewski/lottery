@@ -10,16 +10,16 @@ import (
 )
 
 type Service struct {
-	client client.Client
+	receiver client.Client
 }
 
 type GeneratorServicer interface {
 	GenerateWinningNumbers() *types.WinningNumbers
 }
 
-func NewGeneratorService(client client.Client) *Service {
+func NewGeneratorService(receiver client.Client) *Service {
 	return &Service{
-		client: client,
+		receiver: receiver,
 	}
 }
 
@@ -36,7 +36,7 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	for key := range uniqueNumbers {
 		numbers = append(numbers, key)
 	}
-	drawDate := s.client.GetNextDrawDate(context.Background(), time.Now())
+	drawDate := s.receiver.GetNextDrawDate(context.Background(), time.Now())
 
 	return &types.WinningNumbers{
 		Numbers:  numbers,
