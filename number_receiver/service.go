@@ -44,7 +44,7 @@ func (n *ReceiverService) CreateTicket(nums *types.UserNumbers) (*types.Ticket, 
 }
 
 func (s *ReceiverService) NextDrawDate(currentTime time.Time) types.DrawDate {
-	if s.isSaturdayAndBeforeNoon(currentTime) {
+	if isSaturdayAndBeforeNoon(currentTime) {
 		time := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), drawTime.Hour(), drawTime.Minute(), drawTime.Second(), 0, currentTime.Location())
 		return types.DrawDate{Date: time}
 	}
@@ -57,14 +57,14 @@ func (s *ReceiverService) NextDrawDate(currentTime time.Time) types.DrawDate {
 	return types.DrawDate{Date: time}
 }
 
-func (s *ReceiverService) isSaturdayAndBeforeNoon(currentDateTime time.Time) bool {
+func isSaturdayAndBeforeNoon(currentDateTime time.Time) bool {
 	return currentDateTime.Weekday() == time.Saturday && currentDateTime.Hour() < drawTime.Hour()
 }
 
 func (n *ReceiverService) GetTicketByHash(hash string) (*types.Ticket, error) {
 	ticket, err := n.ticketStore.FindByHash(hash)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ticket with hash %s not found", hash)
 	}
 	return ticket, nil
 }

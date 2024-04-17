@@ -71,7 +71,7 @@ func TestCreateTicketInvalidNumbers(t *testing.T) {
 	}
 }
 
-func TestGetTicketByHash(t *testing.T) {
+func TestGetTicketByHashValid(t *testing.T) {
 	store := NewInMemoryTicketStore()
 	svc := NewNumberReceiver(store)
 
@@ -90,6 +90,16 @@ func TestGetTicketByHash(t *testing.T) {
 	}
 	if ticket == nil {
 		t.Error("ticket is nil, not created")
+	}
+}
+
+func TestGetTicketByHashInvalid(t *testing.T) {
+	store := NewInMemoryTicketStore()
+	svc := NewNumberReceiver(store)
+
+	_, err := svc.GetTicketByHash("invalid-hash")
+	if err == nil {
+		t.Error("should not be able to get ticket with invalid hash")
 	}
 }
 
