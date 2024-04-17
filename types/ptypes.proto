@@ -26,6 +26,9 @@ message NextDate {
     google.protobuf.Timestamp date = 1;
 }
 
+message NextDateRequest {
+    google.protobuf.Timestamp date = 1;
+}
 message TicketHashRequest {
     string hash = 1;
 }
@@ -34,9 +37,10 @@ message UserNumbersTransport {
     repeated int32 numbers = 1;
 }
 
+
 service Receiver {
     rpc GetTicketByHash(TicketHashRequest) returns (TicketTransport);
-    rpc NextDrawDate(Empty) returns (NextDate);
+    rpc NextDrawDate(NextDateRequest) returns (NextDate);
     rpc CreateTicket(UserNumbersTransport) returns (TicketTransport);
 }
 

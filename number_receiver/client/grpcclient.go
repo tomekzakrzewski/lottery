@@ -2,11 +2,13 @@ package client
 
 import (
 	"context"
+	"time"
 
 	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GRPCClient struct {
@@ -51,8 +53,9 @@ func (c *GRPCClient) GetTicketByHash(ctx context.Context, hash string) (*types.T
 	}, nil
 }
 
-func (c *GRPCClient) GetNextDrawDate(ctx context.Context) *types.DrawDate {
-	drawDate, err := c.client.NextDrawDate(context.Background(), &types.Empty{})
+func (c *GRPCClient) GetNextDrawDate(ctx context.Context, currentTime time.Time) *types.DrawDate {
+	drawDate, err := c.client.NextDrawDate(context.Background(), &types.NextDateRequest{
+		Date: timestamppb.New(currentTime)})
 	if err != nil {
 		return nil
 	}

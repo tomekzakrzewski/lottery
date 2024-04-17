@@ -36,7 +36,7 @@ func (s *Service) GenerateWinningNumbers() *types.WinningNumbers {
 	for key := range uniqueNumbers {
 		numbers = append(numbers, key)
 	}
-	drawDate := s.client.GetNextDrawDate(context.Background())
+	drawDate := s.client.GetNextDrawDate(context.Background(), time.Now())
 
 	return &types.WinningNumbers{
 		Numbers:  numbers,

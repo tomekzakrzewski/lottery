@@ -109,7 +109,7 @@ var Generator_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReceiverClient interface {
 	GetTicketByHash(ctx context.Context, in *TicketHashRequest, opts ...grpc.CallOption) (*TicketTransport, error)
-	NextDrawDate(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NextDate, error)
+	NextDrawDate(ctx context.Context, in *NextDateRequest, opts ...grpc.CallOption) (*NextDate, error)
 	CreateTicket(ctx context.Context, in *UserNumbersTransport, opts ...grpc.CallOption) (*TicketTransport, error)
 }
 
@@ -130,7 +130,7 @@ func (c *receiverClient) GetTicketByHash(ctx context.Context, in *TicketHashRequ
 	return out, nil
 }
 
-func (c *receiverClient) NextDrawDate(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NextDate, error) {
+func (c *receiverClient) NextDrawDate(ctx context.Context, in *NextDateRequest, opts ...grpc.CallOption) (*NextDate, error) {
 	out := new(NextDate)
 	err := c.cc.Invoke(ctx, "/Receiver/NextDrawDate", in, out, opts...)
 	if err != nil {
@@ -153,7 +153,7 @@ func (c *receiverClient) CreateTicket(ctx context.Context, in *UserNumbersTransp
 // for forward compatibility
 type ReceiverServer interface {
 	GetTicketByHash(context.Context, *TicketHashRequest) (*TicketTransport, error)
-	NextDrawDate(context.Context, *Empty) (*NextDate, error)
+	NextDrawDate(context.Context, *NextDateRequest) (*NextDate, error)
 	CreateTicket(context.Context, *UserNumbersTransport) (*TicketTransport, error)
 	mustEmbedUnimplementedReceiverServer()
 }
@@ -165,7 +165,7 @@ type UnimplementedReceiverServer struct {
 func (UnimplementedReceiverServer) GetTicketByHash(context.Context, *TicketHashRequest) (*TicketTransport, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTicketByHash not implemented")
 }
-func (UnimplementedReceiverServer) NextDrawDate(context.Context, *Empty) (*NextDate, error) {
+func (UnimplementedReceiverServer) NextDrawDate(context.Context, *NextDateRequest) (*NextDate, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NextDrawDate not implemented")
 }
 func (UnimplementedReceiverServer) CreateTicket(context.Context, *UserNumbersTransport) (*TicketTransport, error) {
@@ -203,7 +203,7 @@ func _Receiver_GetTicketByHash_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _Receiver_NextDrawDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(NextDateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func _Receiver_NextDrawDate_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/Receiver/NextDrawDate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReceiverServer).NextDrawDate(ctx, req.(*Empty))
+		return srv.(ReceiverServer).NextDrawDate(ctx, req.(*NextDateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

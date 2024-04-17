@@ -38,8 +38,9 @@ func (s *GRPCReceiverServer) GetTicketByHash(ctx context.Context, req *types.Tic
 	}, nil
 }
 
-func (s *GRPCReceiverServer) NextDrawDate(ctx context.Context, req *types.Empty) (*types.NextDate, error) {
-	drawDate := s.svc.NextDrawDate()
+func (s *GRPCReceiverServer) NextDrawDate(ctx context.Context, req *types.NextDateRequest) (*types.NextDate, error) {
+	currentTime := req.GetDate().AsTime()
+	drawDate := s.svc.NextDrawDate(currentTime)
 	return &types.NextDate{
 		Date: timestamppb.New(drawDate.Date),
 	}, nil

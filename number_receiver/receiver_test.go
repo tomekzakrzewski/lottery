@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/tomekzakrzewski/lottery/types"
 )
@@ -92,32 +93,29 @@ func TestGetTicketByHash(t *testing.T) {
 	}
 }
 
-/*
-func TestNextDrawDate_SaturdayAfterNoon(t *testing.T) {
+func TestNextDrawDateSaturdayAfterNoon(t *testing.T) {
+	store := NewInMemoryTicketStore()
+	svc := NewNumberReceiver(store)
+	currentTime := time.Date(2024, time.April, 20, 12, 0, 0, 0, time.UTC).UTC()
+	expectedDrawDate := time.Date(2024, time.April, 27, 12, 0, 0, 0, time.UTC).UTC()
+	drawDate := svc.NextDrawDate(currentTime)
+
+	if drawDate.Date != expectedDrawDate {
+		t.Errorf("Expected draw date: %v, got: %v", expectedDrawDate, drawDate.Date)
+	}
+}
+
+func TestNextDrawDateNotSaturday(t *testing.T) {
 	store := NewInMemoryTicketStore()
 	svc := NewNumberReceiver(store)
 
-	currentTime := time.Date(2024, time.April, 20, 13, 0, 0, 0, time.UTC)
-	expectedDrawDate := time.Date(2024, time.April, 27, 12, 0, 0, 0, time.UTC)
+	currentTime := time.Date(2024, time.April, 19, 13, 0, 0, 0, time.UTC)
+	expectedDrawDate := time.Date(2024, time.April, 20, 12, 0, 0, 0, time.UTC)
 	drawDate := svc.NextDrawDate(currentTime)
 	if drawDate.Date != expectedDrawDate {
 		t.Errorf("Expected draw date: %v, got: %v", expectedDrawDate, drawDate.Date)
 	}
 }
-
-func TestNextDrawDate_NotSaturday(t *testing.T) {
-	// Initialize ReceiverService
-	service := &ReceiverService{}
-
-	// Test case: current time is not Saturday
-	currentTime := time.Date(2024, time.April, 19, 13, 0, 0, 0, time.UTC)
-	expectedDrawDate := time.Date(2024, time.April, 21, 12, 0, 0, 0, time.UTC)
-	drawDate := service.NextDrawDate(currentTime)
-	if drawDate.Date != expectedDrawDate {
-		t.Errorf("Expected draw date: %v, got: %v", expectedDrawDate, drawDate.Date)
-	}
-}
-*/
 
 type InMemoryTicketStore struct {
 	tickets []*types.Ticket

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/tomekzakrzewski/lottery/types"
@@ -34,7 +35,7 @@ func (h *HttpTransport) handlePostTicket(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *HttpTransport) handleGetNextDrawDate(w http.ResponseWriter, r *http.Request) {
-	drawDate := h.svc.NextDrawDate()
+	drawDate := h.svc.NextDrawDate(time.Now())
 	writeJSON(w, http.StatusOK, drawDate, nil)
 }
 

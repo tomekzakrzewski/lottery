@@ -2,12 +2,13 @@ package client
 
 import (
 	"context"
+	"time"
 
 	"github.com/tomekzakrzewski/lottery/types"
 )
 
 type Client interface {
 	GetTicketByHash(ctx context.Context, hash string) (*types.Ticket, error)
-	GetNextDrawDate(ctx context.Context) *types.DrawDate
+	GetNextDrawDate(ctx context.Context, currentTime time.Time) *types.DrawDate
 	CreateTicket(ctx context.Context, nums *types.UserNumbers) (*types.Ticket, error)
 }
