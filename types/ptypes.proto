@@ -37,7 +37,6 @@ message UserNumbersTransport {
     repeated int32 numbers = 1;
 }
 
-
 service Receiver {
     rpc GetTicketByHash(TicketHashRequest) returns (TicketTransport);
     rpc NextDrawDate(NextDateRequest) returns (NextDate);

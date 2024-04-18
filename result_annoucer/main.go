@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-redis/redis"
@@ -18,31 +16,37 @@ import (
 func main() {
 
 	var (
-		redisUri     = os.Getenv("REDIS_URI")
-		annoucerGRPC = os.Getenv("ANNOUNCER_GRPC")
-		annoucerHTTP = os.Getenv("ANNOUNCER_HTTP")
-		checkerGRPC  = os.Getenv("CHECKER_GRPC")
-		receiverGRPC = os.Getenv("RECEIVER_GRPC")
-		redisClient  = makeRedis(redisUri)
-		redis        = NewRedisStore(redisClient)
-		r            = chi.NewRouter()
+		//redisUri     = os.Getenv("REDIS_URI")
+		annoucerGRPC = "localhost:6006"
+		//checkerGRPC  = os.Getenv("CHECKER_GRPC")
+		//receiverGRPC = os.Getenv("RECEIVER_GRPC")
+		r = chi.NewRouter()
 	)
-	checkerGRPCClient, err := checker.NewGRPCClient(checkerGRPC)
+
+	redis := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	store := NewRedisStore(redis)
+	checkerClient, err := checker.NewGRPCClient("localhost:3009")
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-	receiverGRPCClient, err := receiver.NewGRPCClient(receiverGRPC)
+	receiverClient, err := receiver.NewGRPCClient("localhost:3006")
 	if err != nil {
+		panic(err)
 	}
-	svc := NewResultAnnoucerService(checkerGRPCClient, receiverGRPCClient, redis)
+	svc := NewResultAnnoucerService(checkerClient, receiverClient, store)
 	m := NewLogMiddleware(svc)
 
 	go func() {
-		log.Fatal(makeGRPCTransport(annoucerGRPC, m))
+		panic(makeGRPCTransport(annoucerGRPC, m))
+		//		log.Fatal(makeGRPCTransport(annoucerGRPC, m))
 	}()
 	srv := NewHttpTransport(m)
 	r.Get("/win/{hash}", srv.handleCheckResult)
-	http.ListenAndServe(annoucerHTTP, r)
+	http.ListenAndServe(":6001", r)
 }
 
 func makeGRPCTransport(listenAddr string, svc ResultAnnoucer) error {

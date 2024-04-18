@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -20,9 +19,9 @@ func main() {
 	}
 
 	var (
-		generatorHTTP = os.Getenv("GENERATOR_HTTP")
-		generatorGRPC = os.Getenv("GENERATOR_GRPC")
-		receiverGRPC  = os.Getenv("RECEIVER_GRPC")
+		generatorHTTP = ":3001"
+		generatorGRPC = "localhost:3005"
+		receiverGRPC  = "localhost:3006"
 		r             = chi.NewRouter()
 	)
 	grpcClient, err := client.NewGRPCClient(receiverGRPC)

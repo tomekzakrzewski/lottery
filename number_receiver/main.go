@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -21,11 +20,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mongoClient := makeClient(os.Getenv("MONGO_URI"))
+	mongoClient := makeClient("mongodb://localhost:27017")
 
 	var (
-		receiverGRPC = os.Getenv("RECEIVER_GRPC")
-		receiverHTTP = os.Getenv("RECEIVER_HTTP")
+		receiverGRPC = "localhost:3006"
+		receiverHTTP = ":3000"
 		store        = NewTicketStore(mongoClient)
 		svc          = NewNumberReceiver(store)
 		m            = NewLogMiddleware(svc)

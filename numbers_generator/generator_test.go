@@ -7,11 +7,18 @@ import (
 )
 
 func TestGenerateWinningNumbers(t *testing.T) {
+	c, err := receiver.NewGRPCClient("localhost:3006")
 
-	c := receiver.NewHTTPClient("localhost:3000")
+	if err != nil {
+		t.Error(err)
+	}
+
 	svc := NewGeneratorService(c)
 
 	ticket := svc.GenerateWinningNumbers()
+	if ticket == nil {
+		t.Error("ticket is nil")
+	}
 
 	t.Log(ticket)
 }

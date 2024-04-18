@@ -44,7 +44,6 @@ func (s *ResultAnnoucerService) CheckResult(hash string) (*types.ResultResponse,
 
 	// sprawdzic czy ticket jest wygrany
 	resultTicket, err := s.checker.IsTicketWinning(context.Background(), ticket)
-	fmt.Println(resultTicket)
 	if err != nil {
 		return nil, err
 	}

@@ -50,17 +50,17 @@ func (h *HTTPClient) CreateTicket(ctx context.Context, nums *types.UserNumbers) 
 	return &ticket, nil
 }
 
-func (h *HTTPClient) GetNextDrawDate(ctx context.Context, currentTime time.Time) *types.DrawDate {
+func (h *HTTPClient) GetNextDrawDate(ctx context.Context, currentTime time.Time) (*types.DrawDate, error) {
 	endpoint := fmt.Sprintf("%s/drawDate", h.Endpoint)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -68,10 +68,10 @@ func (h *HTTPClient) GetNextDrawDate(ctx context.Context, currentTime time.Time)
 	var date types.DrawDate
 	err = json.NewDecoder(resp.Body).Decode(&date)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return &date
+	return &date, err
 }
 
 func (h *HTTPClient) GetTicketByHash(ctx context.Context, hash string) (*types.Ticket, error) {

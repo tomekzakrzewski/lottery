@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -20,9 +19,9 @@ func main() {
 	}
 
 	var (
-		gatewayHTTP  = os.Getenv("GATEWAY_HTTP")
-		receiverGRPC = os.Getenv("RECEIVER_GRPC")
-		annoucerGRPC = os.Getenv("ANNOUCER_GRPC")
+		gatewayHTTP  = ":8080"
+		receiverGRPC = "localhost:3006"
+		annoucerGRPC = "localhost:6006"
 		r            = chi.NewRouter()
 	)
 
