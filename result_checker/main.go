@@ -19,12 +19,12 @@ import (
 )
 
 func main() {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://mongodb:27017"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	receiverGRPCClient, _ := receiver.NewGRPCClient("localhost:3009")
-	generatorGRCPClient, _ := generator.NewGRPCClient("localhost:3005")
+	receiverGRPCClient, _ := receiver.NewGRPCClient(":3009")
+	generatorGRCPClient, _ := generator.NewGRPCClient(":3005")
 	store := NewNumbersStore(client)
 	r := chi.NewRouter()
 	svc := NewResultCheckerService(receiverGRPCClient, generatorGRCPClient, *store)
@@ -32,14 +32,14 @@ func main() {
 	srv := NewHttpTransport(m)
 
 	go func() {
-		log.Fatal(makeGRPCTransport("localhost:3009", m))
+		log.Fatal(makeGRPCTransport(":3009", m))
 	}()
 
 	s := gocron.NewScheduler(time.Local)
 	//_, err = s.Every(1).Saturday().At("11:55").Do(m.GetWinningNumbers)
 	_, err = s.Every(1).Minutes().Do(m.GetWinningNumbers)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	s.StartAsync()
 

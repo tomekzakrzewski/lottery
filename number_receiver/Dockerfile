@@ -13,7 +13,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o result_checker ./result_checker
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o number_receiver ./number_receiver
 
 ######## Start a new stage from scratch #######
 FROM alpine:latest
@@ -24,10 +24,10 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=build /app/result_checker .
+COPY --from=build /app/number_receiver .
 
 # Expose port 3000 to the outside world
-EXPOSE 5000
+EXPOSE 3000
 
 # Command to run the executable
-CMD ["./result_checker"]
+CMD ["./number_receiver"]

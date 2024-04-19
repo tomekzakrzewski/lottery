@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
 	"github.com/tomekzakrzewski/lottery/types"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,15 +15,12 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
 
-	mongoClient := makeClient("mongodb://localhost:27017")
+	mongoClient := makeClient("mongodb://mongodb:27017")
 
 	var (
-		receiverGRPC = "localhost:3006"
-		receiverHTTP = ":3000"
+		receiverGRPC = ":3006"
+		receiverHTTP = "localhost:3000"
 		store        = NewTicketStore(mongoClient)
 		svc          = NewNumberReceiver(store)
 		m            = NewLogMiddleware(svc)

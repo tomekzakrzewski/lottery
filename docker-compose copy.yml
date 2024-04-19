@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  number_receiver:
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: number_receiver/Dockerfile 
+    ports:
+      - "3000:3000"
+  numbers_generator:
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: numbers_generator/Dockerfile 
+    ports:
+      - "3001:3001"
+  result_checker:
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: result_checker/Dockerfile 
+    ports:
+      - "5000:5000"
+  result_annoucer:
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: result_annoucer/Dockerfile 
+    ports:
+      - "6001:6001"
+  gateway:
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: gateway/Dockerfile 
+    ports:
+      - "8080:8080"

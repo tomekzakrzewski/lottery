@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/tomekzakrzewski/lottery/types"
 	"google.golang.org/grpc"
@@ -15,7 +16,8 @@ type GRPCClient struct {
 }
 
 func NewGRPCClient(endpoint string) (*GRPCClient, error) {
-	conn, err := grpc.Dial(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	endpointUrl := fmt.Sprintf("checker%s", endpoint)
+	conn, err := grpc.Dial(endpointUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

@@ -3,25 +3,19 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
 	receiver "github.com/tomekzakrzewski/lottery/number_receiver/client"
 	annoucer "github.com/tomekzakrzewski/lottery/result_annoucer/client"
 	"github.com/tomekzakrzewski/lottery/types"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-
 	var (
 		gatewayHTTP  = ":8080"
-		receiverGRPC = "localhost:3006"
-		annoucerGRPC = "localhost:6006"
+		receiverGRPC = ":3006"
+		annoucerGRPC = ":6006"
 		r            = chi.NewRouter()
 	)
 
@@ -73,7 +67,11 @@ func (h *Handler) handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	hash := chi.URLParam(r, "hash")
 	isWinning, err := h.annoucerClient.CheckResult(hash)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		resp := map[string]string{
+			"hash":  hash,
+			"error": err.Error(),
+		}
+		writeJSON(w, http.StatusOK, resp, nil)
 		return
 	}
 	writeJSON(w, http.StatusOK, isWinning, nil)

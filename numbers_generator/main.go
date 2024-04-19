@@ -7,21 +7,16 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
 	"github.com/tomekzakrzewski/lottery/number_receiver/client"
 	"github.com/tomekzakrzewski/lottery/types"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-
 	var (
 		generatorHTTP = ":3001"
-		generatorGRPC = "localhost:3005"
-		receiverGRPC  = "localhost:3006"
+		generatorGRPC = ":3005"
+		receiverGRPC  = ":3006"
 		r             = chi.NewRouter()
 	)
 	grpcClient, err := client.NewGRPCClient(receiverGRPC)

@@ -17,23 +17,23 @@ func main() {
 
 	var (
 		//redisUri     = os.Getenv("REDIS_URI")
-		annoucerGRPC = "localhost:6006"
+		annoucerGRPC = ":6006"
 		//checkerGRPC  = os.Getenv("CHECKER_GRPC")
 		//receiverGRPC = os.Getenv("RECEIVER_GRPC")
 		r = chi.NewRouter()
 	)
 
 	redis := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
 	store := NewRedisStore(redis)
-	checkerClient, err := checker.NewGRPCClient("localhost:3009")
+	checkerClient, err := checker.NewGRPCClient(":3009")
 	if err != nil {
 		panic(err)
 	}
-	receiverClient, err := receiver.NewGRPCClient("localhost:3006")
+	receiverClient, err := receiver.NewGRPCClient(":3006")
 	if err != nil {
 		panic(err)
 	}

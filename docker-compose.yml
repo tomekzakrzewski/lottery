@@ -1,0 +1,73 @@
+version: "3.8"
+volumes:
+  mongodb_data:
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - grpc_network
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - grpc_network
+  receiver:
+    container_name: receiver
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: number_receiver/Dockerfile 
+    ports:
+      - "3000:3000"
+    networks:
+      - grpc_network
+    depends_on:
+      - mongodb
+  generator:
+    container_name: generator 
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: numbers_generator/Dockerfile 
+    ports:
+      - "3001:3001"
+    networks:
+      - grpc_network
+  checker:
+    container_name: checker 
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: result_checker/Dockerfile 
+    ports:
+      - "5000:5000"
+    networks:
+      - grpc_network
+  annoucer:
+    container_name: annoucer 
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: result_annoucer/Dockerfile 
+    ports:
+      - "6001:6001"
+    networks:
+      - grpc_network
+    depends_on:
+      - redis
+  gateway:
+    container_name: gateway 
+    build:
+      context: .  # Assuming your docker-compose.yml is at the project root
+      dockerfile: gateway/Dockerfile 
+    ports:
+      - "8080:8080"
+    networks:
+      - grpc_network
+
+networks:
+  grpc_network:
+    driver: bridge
