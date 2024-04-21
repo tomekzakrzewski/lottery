@@ -1,6 +1,6 @@
 # Lotto Lottery Game
 
-Number based lottery game. User selects 6 unique numbers between 1-99 and receives a ticket ID. Random generated numbers are drawn every Saturday at 12:00. Users can check the lottery results using their unique ticket id.
+Number based lottery game. User selects 6 unique numbers between 1-99 and receives a ticket ID. Random generated numbers are drawn every Saturday at 12:00. Users can check the lottery results using their unique ticket ID.
 
 ## Technologies used
 
