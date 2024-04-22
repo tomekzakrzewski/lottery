@@ -23,13 +23,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	svc := NewGeneratorService(grpcClient)
 	m := NewLogMiddleware(svc)
+	srv := NewHttpTransport(m)
 
 	go func() {
 		log.Fatal(makeGRPCTransport(generatorGRPC, m))
 	}()
-	srv := NewHttpTransport(m)
 
 	r.Get("/winningNumbers", srv.handleGetWinningNumbers)
 	http.ListenAndServe(generatorHTTP, r)

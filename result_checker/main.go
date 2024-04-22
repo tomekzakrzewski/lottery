@@ -23,10 +23,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var (
+		store = NewNumbersStore(client)
+		r     = chi.NewRouter()
+	)
 	receiverGRPCClient, _ := receiver.NewGRPCClient(":3009")
 	generatorGRCPClient, _ := generator.NewGRPCClient(":3005")
-	store := NewNumbersStore(client)
-	r := chi.NewRouter()
 	svc := NewResultCheckerService(receiverGRPCClient, generatorGRCPClient, *store)
 	m := NewLogMiddleware(svc)
 	srv := NewHttpTransport(m)
@@ -36,8 +39,8 @@ func main() {
 	}()
 
 	s := gocron.NewScheduler(time.Local)
-	//_, err = s.Every(1).Saturday().At("11:55").Do(m.GetWinningNumbers)
-	_, err = s.Every(1).Minutes().Do(m.GetWinningNumbers)
+	_, err = s.Every(1).Saturday().At("12:00").Do(m.GetWinningNumbers)
+	//_, err = s.Every(1).Minutes().Do(m.GetWinningNumbers)
 	if err != nil {
 		log.Fatal(err)
 	}

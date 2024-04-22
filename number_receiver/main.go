@@ -24,9 +24,10 @@ func main() {
 		store        = NewTicketStore(mongoClient)
 		svc          = NewNumberReceiver(store)
 		m            = NewLogMiddleware(svc)
+		r            = chi.NewRouter()
+		srv          = NewHttpTransport(m)
 	)
 
-	srv := NewHttpTransport(m)
 	defer func() {
 		if err := mongoClient.Disconnect(context.TODO()); err != nil {
 			panic(err)
@@ -37,7 +38,6 @@ func main() {
 		log.Fatal(makeGRPCTransport(receiverGRPC, m))
 	}()
 
-	r := chi.NewRouter()
 	r.Get("/drawDate", srv.handleGetNextDrawDate)
 	r.Get("/ticket/{hash}", srv.handleFindByHash)
 	r.Post("/ticket", srv.handlePostTicket)

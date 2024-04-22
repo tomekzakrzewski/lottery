@@ -18,9 +18,9 @@ func main() {
 	var (
 		//redisUri     = os.Getenv("REDIS_URI")
 		annoucerGRPC = ":6006"
-		//checkerGRPC  = os.Getenv("CHECKER_GRPC")
-		//receiverGRPC = os.Getenv("RECEIVER_GRPC")
-		r = chi.NewRouter()
+		checkerGRPC  = ":3009"
+		receiverGRPC = ":3006"
+		r            = chi.NewRouter()
 	)
 
 	redis := redis.NewClient(&redis.Options{
@@ -28,12 +28,15 @@ func main() {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+
 	store := NewRedisStore(redis)
-	checkerClient, err := checker.NewGRPCClient(":3009")
+
+	checkerClient, err := checker.NewGRPCClient(checkerGRPC)
 	if err != nil {
 		panic(err)
 	}
-	receiverClient, err := receiver.NewGRPCClient(":3006")
+
+	receiverClient, err := receiver.NewGRPCClient(receiverGRPC)
 	if err != nil {
 		panic(err)
 	}
@@ -42,9 +45,9 @@ func main() {
 
 	go func() {
 		panic(makeGRPCTransport(annoucerGRPC, m))
-		//		log.Fatal(makeGRPCTransport(annoucerGRPC, m))
 	}()
 	srv := NewHttpTransport(m)
+
 	r.Get("/win/{hash}", srv.handleCheckResult)
 	http.ListenAndServe(":6001", r)
 }
@@ -62,12 +65,4 @@ func makeGRPCTransport(listenAddr string, svc ResultAnnoucer) error {
 	grpcServer := grpc.NewServer([]grpc.ServerOption{}...)
 	types.RegisterAnnoucerServer(grpcServer, NewAnnoucerGRPCServer(svc))
 	return grpcServer.Serve(ln)
-}
-
-func makeRedis(uri string) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr:     uri,
-		Password: "",
-		DB:       0,
-	})
 }
